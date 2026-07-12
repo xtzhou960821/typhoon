@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "mysql": {
+      "command": "npx",
+      "args": ["-y", "@benborla29/mcp-server-mysql"],
+      "envFile": "${workspaceFolder}/.env"
+    }
+  }
+}
