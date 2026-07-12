@@ -17,6 +17,8 @@ node_modules/
 *.sql.gz
 
 # Agent skill packs / local tooling
-.cursor/
+.cursor/*
+# 保留纳入版本管理的共享 skill(MySQL 气象数据库)
+!.cursor/skills/
 .tools/
 .netlify/
