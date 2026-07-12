@@ -1,14 +1,24 @@
-# Python
+# Byte-compiled / cache
 __pycache__/
 *.py[cod]
 .venv/
-venv/
-env/
+.tools/
+node_modules/
 
-# 分析输出产物
-output/
-
-# 系统 / 编辑器
+# OS / IDE
 .DS_Store
 .idea/
-.vscode/
+
+# Local secrets
+.env
+*.pem
+
+# MySQL local dumps
+*.sql.gz
+
+# Agent skill packs / local tooling
+.cursor/*
+# 保留纳入版本管理的共享 skill(MySQL 气象数据库)
+!.cursor/skills/
+.tools/
+.netlify/

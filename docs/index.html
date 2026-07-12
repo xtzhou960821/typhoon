@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>台风巴威 · 浙南气象站近24小时观测分析</title>
+  <meta name="description" content="2026年第9号台风「巴威」登陆浙江期间，浙南六站近24小时风雨气压观测可视化分析。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <p class="brand-kicker">TYPHON OBS · 2609</p>
+        <h1 class="brand-title">台风巴威-调取智慧工地气象观测站真实数据可视化分析报告</h1>
+      </div>
+    </div>
+    <div class="topbar-meta">
+      <span class="live-pill" id="livePill"><span class="live-dot"></span>近24小时分析</span>
+      <span class="meta-time" id="windowLabel">加载中…</span>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="hero-content">
+        <p class="eyebrow">2026年第9号 · 凌晨登陆浙江</p>
+        <h2 id="heroTitle">巴威两度登陆，浙南风雨峰值已写入观测序列</h2>
+        <p class="hero-lead" id="heroLead">
+          11日23:20玉环坎门、12日0时乐清清江先后以台风级登陆。下列图表由 MySQL 近24小时站点资料提取，并与中央气象台路径通报交叉解读。
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#kpis">查看关键指标</a>
+          <a class="btn btn-ghost" href="#map">路径与站点</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="kpis" aria-labelledby="kpiTitle">
+      <div class="section-head">
+        <h2 id="kpiTitle">关键观测峰值</h2>
+        <p>六站近24小时极值 · 北京时</p>
+      </div>
+      <div class="kpi-grid" id="kpiGrid"></div>
+    </section>
+
+    <section class="section" id="timeline" aria-labelledby="landfallTitle">
+      <div class="section-head">
+        <h2 id="landfallTitle">登陆时间线</h2>
+        <p>公开路径要点与强度演变</p>
+      </div>
+      <ol class="timeline" id="landfallTimeline"></ol>
+    </section>
+
+    <section class="section split" id="map" aria-labelledby="mapTitle">
+      <div class="panel">
+        <div class="section-head">
+          <h2 id="mapTitle">路径与站点分布</h2>
+          <p>台风中心轨迹 · 观测站角色</p>
+        </div>
+        <div id="stormMap" class="map" role="img" aria-label="台风巴威路径与浙江观测站地图"></div>
+      </div>
+      <div class="panel">
+        <div class="section-head">
+          <h2>站点对比</h2>
+          <p>24小时累计降水 / 最大阵风</p>
+        </div>
+        <canvas id="stationBar" height="280" aria-label="站点降水与阵风对比柱状图"></canvas>
+        <div class="table-wrap">
+          <table class="data-table" id="stationTable">
+            <thead>
+              <tr>
+                <th>站点</th>
+                <th>角色</th>
+                <th>降水mm</th>
+                <th>阵风m/s</th>
+                <th>最低气压</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="series" aria-labelledby="seriesTitle">
+      <div class="section-head row">
+        <div>
+          <h2 id="seriesTitle">小时序列</h2>
+          <p>气压谷、阵风峰与降水脉冲</p>
+        </div>
+        <label class="station-select">
+          站点
+          <select id="stationSelect"></select>
+        </label>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-box">
+          <h3>气压与风速</h3>
+          <canvas id="pressureWind" height="220"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>小时降水与湿度</h3>
+          <canvas id="rainHumidity" height="220"></canvas>
+        </div>
+      </div>
+      <div class="chart-box wide">
+        <h3>区域六站合成 · 平均气压 / 最大阵风 / 平均降水</h3>
+        <canvas id="regionalChart" height="200"></canvas>
+      </div>
+    </section>
+
+    <section class="section" id="analysis" aria-labelledby="analysisTitle">
+      <div class="section-head">
+        <h2 id="analysisTitle">综合研判</h2>
+        <p>观测信号与台风过程对照</p>
+      </div>
+      <ul class="insight-list" id="insightList"></ul>
+      <article class="brief">
+        <h3>过程摘要</h3>
+        <p id="briefBody"></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p id="dataNote"></p>
+    <p>设计系统：UI UX Pro Max · Data-Dense Dashboard · Fira Sans / Fira Code</p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
