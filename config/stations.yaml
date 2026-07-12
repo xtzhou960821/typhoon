@@ -1,0 +1,63 @@
+# 台风巴威（2026年第9号）气象站分析配置
+typhoon:
+  name: 巴威
+  english_name: Bavi
+  year: 2026
+  number: 9
+  # 分析时间窗：登陆/影响关键时段（UTC+8）
+  analysis_start: "2026-07-10T00:00:00"
+  analysis_end: "2026-07-13T00:00:00"
+  focus_date: "2026-07-11"
+
+# 关注站点（示例：闽浙沿海及周边）
+stations:
+  - id: "54511"
+    name: 北京
+    province: 北京
+    lat: 39.80
+    lon: 116.47
+    note: 远距离水汽输送参考站
+  - id: "58367"
+    name: 上海
+    province: 上海
+    lat: 31.40
+    lon: 121.46
+    note: 华东沿海
+  - id: "58457"
+    name: 杭州
+    province: 浙江
+    lat: 30.23
+    lon: 120.17
+    note: 浙江内陆对照
+  - id: "58665"
+    name: 温州
+    province: 浙江
+    lat: 28.03
+    lon: 120.65
+    note: 登陆影响核心区
+  - id: "58847"
+    name: 福州
+    province: 福建
+    lat: 26.08
+    lon: 119.28
+    note: 登陆影响核心区
+  - id: "59134"
+    name: 厦门
+    province: 福建
+    lat: 24.48
+    lon: 118.08
+    note: 闽南沿海对照
+
+# 要素阈值（用于极值标注与告警统计）
+thresholds:
+  wind_gust_ms: 17.2   # 约 8 级
+  wind_max_ms: 24.5    # 约 10 级
+  precip_1h_mm: 20.0
+  precip_24h_mm: 100.0
+  pressure_drop_hpa: 10.0
+
+# 输出
+output:
+  figures_dir: outputs/figures
+  tables_dir: outputs/tables
+  dpi: 150
