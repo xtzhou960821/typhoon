@@ -1,0 +1,22 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+.venv/
+.tools/
+node_modules/
+
+# OS / IDE
+.DS_Store
+.idea/
+
+# Local secrets
+.env
+*.pem
+
+# MySQL local dumps
+*.sql.gz
+
+# Agent skill packs / local tooling
+.cursor/
+.tools/
+.netlify/

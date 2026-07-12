@@ -1,0 +1,3124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>台风巴威 · 浙南气象站近24小时观测分析</title>
+  <meta name="description" content="2026年第9号台风「巴威」登陆浙江期间，浙南六站近24小时风雨气压观测可视化分析。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+/**
+ * 台风巴威观测分析站 — 样式
+ * 设计系统：UI UX Pro Max Data-Dense Dashboard
+ * Primary #1E40AF / Accent #D97706 / Background #F8FAFC
+ */
+
+:root {
+  --color-primary: #1e40af;
+  --color-on-primary: #ffffff;
+  --color-secondary: #3b82f6;
+  --color-accent: #d97706;
+  --color-background: #f8fafc;
+  --color-foreground: #1e3a8a;
+  --color-muted: #e9eef6;
+  --color-border: #dbeafe;
+  --color-destructive: #dc2626;
+  --color-ink: #0f172a;
+  --color-soft: #475569;
+  --font-sans: "Fira Sans", "PingFang SC", "Noto Sans SC", sans-serif;
+  --font-mono: "Fira Code", ui-monospace, monospace;
+  --radius: 10px;
+  --shadow: 0 10px 30px rgba(30, 64, 175, 0.08);
+  --grid-gap: 12px;
+  --pulse: pulse 2s infinite;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background:
+    radial-gradient(1200px 500px at 10% -10%, rgba(59, 130, 246, 0.18), transparent 60%),
+    radial-gradient(900px 420px at 90% 0%, rgba(217, 119, 6, 0.12), transparent 55%),
+    linear-gradient(180deg, #eef4ff 0%, var(--color-background) 28%, #f1f5f9 100%);
+  min-height: 100vh;
+  line-height: 1.55;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--color-primary);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 100;
+}
+
+.skip-link:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  backdrop-filter: blur(12px);
+  background: rgba(248, 250, 252, 0.86);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-mark {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background:
+    conic-gradient(from 210deg, #1e40af, #60a5fa, #d97706, #1e40af);
+  box-shadow: inset 0 0 0 4px #fff, 0 0 0 1px var(--color-border);
+  animation: spinSlow 18s linear infinite;
+}
+
+.brand-kicker {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--color-primary);
+}
+
+.brand-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-foreground);
+}
+
+.topbar-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.85rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #166534;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+}
+
+.live-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: var(--pulse);
+}
+
+.meta-time {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--color-soft);
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  min-height: min(72vh, 640px);
+  display: grid;
+  align-items: end;
+  padding: 3.5rem 1.25rem 2.5rem;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, rgba(15, 23, 42, 0.72), rgba(30, 64, 175, 0.45) 55%, rgba(15, 23, 42, 0.55)),
+    url("https://images.unsplash.com/photo-1527482797697-8795b05a13fe?auto=format&fit=crop&w=1800&q=80")
+      center/cover no-repeat;
+  transform: scale(1.04);
+  animation: heroDrift 22s ease-in-out infinite alternate;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  color: #f8fafc;
+}
+
+.eyebrow {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: #fde68a;
+}
+
+.hero h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 4.5vw, 3rem);
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.hero-lead {
+  margin: 1rem 0 1.4rem;
+  max-width: 58ch;
+  color: #e2e8f0;
+  font-size: 1.05rem;
+}
+
+.hero-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:focus-visible {
+  outline: 3px solid #fbbf24;
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: #111827;
+  box-shadow: 0 8px 20px rgba(217, 119, 6, 0.35);
+}
+
+.btn-primary:hover {
+  background: #b45309;
+  color: #fff;
+}
+
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.section {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto 2rem;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  animation: riseIn 0.7s ease both;
+}
+
+.section-head {
+  margin-bottom: 1rem;
+}
+
+.section-head.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+.section-head h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  color: var(--color-foreground);
+}
+
+.section-head p {
+  margin: 0.25rem 0 0;
+  color: var(--color-soft);
+  font-size: 0.92rem;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--grid-gap);
+}
+
+.kpi {
+  grid-column: span 3;
+  padding: 0.95rem 1rem;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fff, var(--color-muted));
+  border: 1px solid var(--color-border);
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.kpi:hover {
+  border-color: var(--color-secondary);
+  transform: translateY(-2px);
+}
+
+.kpi .label {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-soft);
+  font-family: var(--font-mono);
+}
+
+.kpi .value {
+  margin: 0.35rem 0 0.15rem;
+  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--color-primary);
+}
+
+.kpi .sub {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--color-soft);
+}
+
+.kpi.alert .value {
+  color: var(--color-destructive);
+}
+
+.kpi.warn .value {
+  color: var(--color-accent);
+}
+
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.timeline li {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  border-left: 3px solid var(--color-secondary);
+  background: #fff;
+  border-radius: 0 8px 8px 0;
+}
+
+.timeline time {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--color-primary);
+}
+
+.timeline strong {
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.timeline span {
+  color: var(--color-soft);
+  font-size: 0.9rem;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 1rem;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.panel {
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.map {
+  height: 380px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--grid-gap);
+  margin-bottom: var(--grid-gap);
+}
+
+.chart-box {
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.chart-box.wide {
+  margin-top: 0.25rem;
+}
+
+.chart-box h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: var(--color-foreground);
+}
+
+.station-select {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--color-soft);
+}
+
+.station-select select {
+  min-width: 160px;
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  background: #fff;
+  font-family: var(--font-sans);
+  cursor: pointer;
+}
+
+.table-wrap {
+  margin-top: 0.85rem;
+  overflow: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.55rem 0.45rem;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.data-table th {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-soft);
+  position: sticky;
+  top: 0;
+  background: #fff;
+}
+
+.data-table tbody tr {
+  transition: background 150ms ease;
+}
+
+.data-table tbody tr:hover {
+  background: var(--color-muted);
+}
+
+.insight-list {
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.insight-list li {
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(30, 64, 175, 0.08), rgba(255, 255, 255, 0.9));
+  border: 1px solid var(--color-border);
+  opacity: 0;
+  transform: translateY(8px);
+  animation: riseIn 0.55s ease forwards;
+}
+
+.insight-list li:nth-child(2) { animation-delay: 0.08s; }
+.insight-list li:nth-child(3) { animation-delay: 0.16s; }
+.insight-list li:nth-child(4) { animation-delay: 0.24s; }
+.insight-list li:nth-child(5) { animation-delay: 0.32s; }
+.insight-list li:nth-child(6) { animation-delay: 0.4s; }
+
+.brief {
+  padding: 1rem 1.1rem;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.brief h3 {
+  margin: 0 0 0.5rem;
+  color: #fbbf24;
+  font-size: 1rem;
+}
+
+.brief p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.footer {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto 2rem;
+  color: var(--color-soft);
+  font-size: 0.82rem;
+}
+
+.footer p {
+  margin: 0.25rem 0;
+}
+
+.leaflet-container {
+  font-family: var(--font-sans);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.85); }
+}
+
+@keyframes spinSlow {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes heroDrift {
+  from { transform: scale(1.04) translate3d(0, 0, 0); }
+  to { transform: scale(1.08) translate3d(-1.5%, -1%, 0); }
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1024px) {
+  .kpi { grid-column: span 6; }
+  .split,
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .kpi { grid-column: span 12; }
+
+  .timeline li {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    min-height: 70vh;
+    padding-top: 2.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .brand-mark,
+  .live-dot,
+  .hero-bg,
+  .section,
+  .insight-list li {
+    animation: none !important;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <p class="brand-kicker">TYPHON OBS · 2609</p>
+        <h1 class="brand-title">台风巴威</h1>
+      </div>
+    </div>
+    <div class="topbar-meta">
+      <span class="live-pill" id="livePill"><span class="live-dot"></span>近24小时分析</span>
+      <span class="meta-time" id="windowLabel">加载中…</span>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="hero-content">
+        <p class="eyebrow">2026年第9号 · 凌晨登陆浙江</p>
+        <h2 id="heroTitle">巴威两度登陆，浙南风雨峰值已写入观测序列</h2>
+        <p class="hero-lead" id="heroLead">
+          11日23:20玉环坎门、12日0时乐清清江先后以台风级登陆。下列图表由 MySQL 近24小时站点资料提取，并与中央气象台路径通报交叉解读。
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#kpis">查看关键指标</a>
+          <a class="btn btn-ghost" href="#map">路径与站点</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="kpis" aria-labelledby="kpiTitle">
+      <div class="section-head">
+        <h2 id="kpiTitle">关键观测峰值</h2>
+        <p>六站近24小时极值 · 北京时</p>
+      </div>
+      <div class="kpi-grid" id="kpiGrid"></div>
+    </section>
+
+    <section class="section" id="timeline" aria-labelledby="landfallTitle">
+      <div class="section-head">
+        <h2 id="landfallTitle">登陆时间线</h2>
+        <p>公开路径要点与强度演变</p>
+      </div>
+      <ol class="timeline" id="landfallTimeline"></ol>
+    </section>
+
+    <section class="section split" id="map" aria-labelledby="mapTitle">
+      <div class="panel">
+        <div class="section-head">
+          <h2 id="mapTitle">路径与站点分布</h2>
+          <p>台风中心轨迹 · 观测站角色</p>
+        </div>
+        <div id="stormMap" class="map" role="img" aria-label="台风巴威路径与浙江观测站地图"></div>
+      </div>
+      <div class="panel">
+        <div class="section-head">
+          <h2>站点对比</h2>
+          <p>24小时累计降水 / 最大阵风</p>
+        </div>
+        <canvas id="stationBar" height="280" aria-label="站点降水与阵风对比柱状图"></canvas>
+        <div class="table-wrap">
+          <table class="data-table" id="stationTable">
+            <thead>
+              <tr>
+                <th>站点</th>
+                <th>角色</th>
+                <th>降水mm</th>
+                <th>阵风m/s</th>
+                <th>最低气压</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="series" aria-labelledby="seriesTitle">
+      <div class="section-head row">
+        <div>
+          <h2 id="seriesTitle">小时序列</h2>
+          <p>气压谷、阵风峰与降水脉冲</p>
+        </div>
+        <label class="station-select">
+          站点
+          <select id="stationSelect"></select>
+        </label>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-box">
+          <h3>气压与风速</h3>
+          <canvas id="pressureWind" height="220"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>小时降水与湿度</h3>
+          <canvas id="rainHumidity" height="220"></canvas>
+        </div>
+      </div>
+      <div class="chart-box wide">
+        <h3>区域六站合成 · 平均气压 / 最大阵风 / 平均降水</h3>
+        <canvas id="regionalChart" height="200"></canvas>
+      </div>
+    </section>
+
+    <section class="section" id="analysis" aria-labelledby="analysisTitle">
+      <div class="section-head">
+        <h2 id="analysisTitle">综合研判</h2>
+        <p>观测信号与台风过程对照</p>
+      </div>
+      <ul class="insight-list" id="insightList"></ul>
+      <article class="brief">
+        <h3>过程摘要</h3>
+        <p id="briefBody"></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p id="dataNote"></p>
+    <p>设计系统：UI UX Pro Max · Data-Dense Dashboard · Fira Sans / Fira Code</p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <script>
+window.__ANALYSIS__ = {
+  "generated_at": "2026-07-12T10:23:38.315661+08:00",
+  "window": {
+    "start": "2026-07-11 11:00:00",
+    "end": "2026-07-12 10:00:00"
+  },
+  "typhoon": {
+    "name_zh": "巴威",
+    "name_en": "Bavi",
+    "number": "2026年第9号",
+    "intl_id": "2609",
+    "formed": "2026-06-30",
+    "peak_cma": "超强台风级，62 m/s",
+    "min_pressure_lifetime": 910,
+    "landfall_1": {
+      "time": "2026-07-11 23:20",
+      "place": "浙江省台州市玉环市坎门街道沿海",
+      "wind_ms": 40,
+      "pressure": 955,
+      "level": "台风级（13级）"
+    },
+    "landfall_2": {
+      "time": "2026-07-12 00:00",
+      "place": "浙江省温州市乐清市清江镇沿海",
+      "wind_ms": 38,
+      "pressure": 960,
+      "level": "台风级（13级）"
+    },
+    "forecast": "继续以每小时20–25公里向西北移动，13日在安徽东部转向东北，14日由山东半岛移入黄海北部并逐渐变性为温带气旋。",
+    "impact": "体型庞大（直径超1500公里），强风雨影响浙江、福建，远距离水汽输送波及华东、华北、东北十余省区市。",
+    "sources": [
+      "中央气象台台风黄色预警（2026-07-12 06时）",
+      "新华社 / 央视新闻登陆通报",
+      "Open-Meteo 地面再分析小时观测"
+    ]
+  },
+  "track": [
+    {
+      "id": 1,
+      "track_time": "2026-07-11 12:00:00",
+      "latitude": 25.7,
+      "longitude": 124.1,
+      "wind_ms": 42.0,
+      "pressure_hpa": 955.0,
+      "category": "强台风级",
+      "note": "距温州东南约423公里"
+    },
+    {
+      "id": 2,
+      "track_time": "2026-07-11 20:00:00",
+      "latitude": 27.4,
+      "longitude": 122.3,
+      "wind_ms": 40.0,
+      "pressure_hpa": 955.0,
+      "category": "台风级",
+      "note": "逼近浙南沿海"
+    },
+    {
+      "id": 3,
+      "track_time": "2026-07-11 23:20:00",
+      "latitude": 28.08,
+      "longitude": 121.27,
+      "wind_ms": 40.0,
+      "pressure_hpa": 955.0,
+      "category": "台风级",
+      "note": "玉环坎门首次登陆"
+    },
+    {
+      "id": 4,
+      "track_time": "2026-07-12 00:00:00",
+      "latitude": 28.15,
+      "longitude": 121.05,
+      "wind_ms": 38.0,
+      "pressure_hpa": 960.0,
+      "category": "台风级",
+      "note": "乐清清江二次登陆"
+    },
+    {
+      "id": 5,
+      "track_time": "2026-07-12 05:00:00",
+      "latitude": 29.3,
+      "longitude": 120.0,
+      "wind_ms": 30.0,
+      "pressure_hpa": 970.0,
+      "category": "强热带风暴级",
+      "note": "减弱，中心位于义乌境内"
+    },
+    {
+      "id": 6,
+      "track_time": "2026-07-12 08:00:00",
+      "latitude": 29.8,
+      "longitude": 119.5,
+      "wind_ms": 28.0,
+      "pressure_hpa": 975.0,
+      "category": "强热带风暴级",
+      "note": "继续西北行，强度减弱"
+    }
+  ],
+  "stations": [
+    {
+      "station_id": "RA",
+      "name": "瑞安沿海",
+      "city": "温州瑞安",
+      "latitude": 27.78,
+      "longitude": 120.63,
+      "role_label": "南部风圈"
+    },
+    {
+      "station_id": "WL",
+      "name": "温岭沿海",
+      "city": "台州温岭",
+      "latitude": 28.45,
+      "longitude": 121.42,
+      "role_label": "北部风圈"
+    },
+    {
+      "station_id": "WZ",
+      "name": "温州城区",
+      "city": "温州",
+      "latitude": 28.01,
+      "longitude": 120.67,
+      "role_label": "核心影响区"
+    },
+    {
+      "station_id": "YH",
+      "name": "玉环坎门",
+      "city": "台州玉环",
+      "latitude": 28.14,
+      "longitude": 121.23,
+      "role_label": "首次登陆点"
+    },
+    {
+      "station_id": "YQ",
+      "name": "乐清清江",
+      "city": "温州乐清",
+      "latitude": 28.12,
+      "longitude": 121.0,
+      "role_label": "二次登陆点"
+    },
+    {
+      "station_id": "YW",
+      "name": "义乌",
+      "city": "金华义乌",
+      "latitude": 29.08,
+      "longitude": 119.65,
+      "role_label": "登陆后路径（5时中心）"
+    }
+  ],
+  "station_stats": [
+    {
+      "station_id": "YQ",
+      "name": "乐清清江",
+      "city": "温州乐清",
+      "role": "二次登陆点",
+      "lat": 28.12,
+      "lon": 121.0,
+      "precip_24h_mm": 152.8,
+      "max_wind_ms": 17.86,
+      "max_gust_ms": 36.0,
+      "max_gust_level": 12,
+      "min_pressure_hpa": 963.4,
+      "max_rain_1h_mm": 13.2,
+      "peak_landfall_gust_ms": 36.0,
+      "sample_count": 24
+    },
+    {
+      "station_id": "YH",
+      "name": "玉环坎门",
+      "city": "台州玉环",
+      "role": "首次登陆点",
+      "lat": 28.14,
+      "lon": 121.23,
+      "precip_24h_mm": 143.3,
+      "max_wind_ms": 22.93,
+      "max_gust_ms": 41.0,
+      "max_gust_level": 13,
+      "min_pressure_hpa": 961.6,
+      "max_rain_1h_mm": 16.6,
+      "peak_landfall_gust_ms": 41.0,
+      "sample_count": 24
+    },
+    {
+      "station_id": "RA",
+      "name": "瑞安沿海",
+      "city": "温州瑞安",
+      "role": "南部风圈",
+      "lat": 27.78,
+      "lon": 120.63,
+      "precip_24h_mm": 124.2,
+      "max_wind_ms": 13.33,
+      "max_gust_ms": 26.0,
+      "max_gust_level": 10,
+      "min_pressure_hpa": 972.5,
+      "max_rain_1h_mm": 16.5,
+      "peak_landfall_gust_ms": 24.7,
+      "sample_count": 24
+    },
+    {
+      "station_id": "WZ",
+      "name": "温州城区",
+      "city": "温州",
+      "role": "核心影响区",
+      "lat": 28.01,
+      "lon": 120.67,
+      "precip_24h_mm": 122.3,
+      "max_wind_ms": 11.83,
+      "max_gust_ms": 25.7,
+      "max_gust_level": 10,
+      "min_pressure_hpa": 969.8,
+      "max_rain_1h_mm": 11.6,
+      "peak_landfall_gust_ms": 25.7,
+      "sample_count": 24
+    },
+    {
+      "station_id": "WL",
+      "name": "温岭沿海",
+      "city": "台州温岭",
+      "role": "北部风圈",
+      "lat": 28.45,
+      "lon": 121.42,
+      "precip_24h_mm": 102.3,
+      "max_wind_ms": 17.24,
+      "max_gust_ms": 34.1,
+      "max_gust_level": 12,
+      "min_pressure_hpa": 965.8,
+      "max_rain_1h_mm": 10.6,
+      "peak_landfall_gust_ms": 34.1,
+      "sample_count": 24
+    },
+    {
+      "station_id": "YW",
+      "name": "义乌",
+      "city": "金华义乌",
+      "role": "登陆后路径（5时中心）",
+      "lat": 29.08,
+      "lon": 119.65,
+      "precip_24h_mm": 68.1,
+      "max_wind_ms": 9.2,
+      "max_gust_ms": 17.7,
+      "max_gust_level": 8,
+      "min_pressure_hpa": 977.0,
+      "max_rain_1h_mm": 12.4,
+      "peak_landfall_gust_ms": 15.2,
+      "sample_count": 24
+    }
+  ],
+  "series": {
+    "RA": {
+      "name": "瑞安沿海",
+      "times": [
+        "11:00",
+        "12:00",
+        "13:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00",
+        "23:00",
+        "00:00",
+        "01:00",
+        "02:00",
+        "03:00",
+        "04:00",
+        "05:00",
+        "06:00",
+        "07:00",
+        "08:00",
+        "09:00",
+        "10:00"
+      ],
+      "full_times": [
+        "2026-07-11 11:00:00",
+        "2026-07-11 12:00:00",
+        "2026-07-11 13:00:00",
+        "2026-07-11 14:00:00",
+        "2026-07-11 15:00:00",
+        "2026-07-11 16:00:00",
+        "2026-07-11 17:00:00",
+        "2026-07-11 18:00:00",
+        "2026-07-11 19:00:00",
+        "2026-07-11 20:00:00",
+        "2026-07-11 21:00:00",
+        "2026-07-11 22:00:00",
+        "2026-07-11 23:00:00",
+        "2026-07-12 00:00:00",
+        "2026-07-12 01:00:00",
+        "2026-07-12 02:00:00",
+        "2026-07-12 03:00:00",
+        "2026-07-12 04:00:00",
+        "2026-07-12 05:00:00",
+        "2026-07-12 06:00:00",
+        "2026-07-12 07:00:00",
+        "2026-07-12 08:00:00",
+        "2026-07-12 09:00:00",
+        "2026-07-12 10:00:00"
+      ],
+      "temperature": [
+        28.5,
+        30.0,
+        27.5,
+        26.0,
+        25.9,
+        25.8,
+        25.9,
+        25.5,
+        25.5,
+        25.7,
+        25.8,
+        25.9,
+        26.4,
+        25.6,
+        25.5,
+        25.7,
+        25.9,
+        26.2,
+        26.5,
+        26.5,
+        26.6,
+        26.7,
+        27.1,
+        27.1
+      ],
+      "humidity": [
+        82.0,
+        70.0,
+        83.0,
+        90.0,
+        91.0,
+        91.0,
+        90.0,
+        90.0,
+        90.0,
+        90.0,
+        89.0,
+        89.0,
+        86.0,
+        89.0,
+        91.0,
+        91.0,
+        92.0,
+        92.0,
+        92.0,
+        93.0,
+        92.0,
+        93.0,
+        93.0,
+        93.0
+      ],
+      "precip": [
+        0.9,
+        0.3,
+        2.3,
+        16.5,
+        3.4,
+        3.4,
+        3.8,
+        5.0,
+        12.4,
+        7.4,
+        14.5,
+        3.5,
+        1.6,
+        3.2,
+        8.7,
+        7.0,
+        3.1,
+        3.9,
+        3.6,
+        7.7,
+        5.6,
+        3.5,
+        1.7,
+        1.2
+      ],
+      "pressure": [
+        993.7,
+        991.7,
+        989.7,
+        988.8,
+        986.8,
+        983.9,
+        981.8,
+        978.5,
+        975.7,
+        975.2,
+        973.0,
+        972.5,
+        972.7,
+        973.8,
+        977.1,
+        979.9,
+        982.5,
+        984.8,
+        986.8,
+        989.1,
+        991.0,
+        992.3,
+        993.6,
+        995.1
+      ],
+      "wind": [
+        7.56,
+        8.64,
+        9.98,
+        8.8,
+        8.93,
+        9.74,
+        9.74,
+        11.41,
+        11.78,
+        12.1,
+        13.33,
+        11.71,
+        10.73,
+        11.23,
+        9.59,
+        9.16,
+        9.6,
+        8.48,
+        8.88,
+        8.97,
+        9.88,
+        8.3,
+        8.72,
+        8.2
+      ],
+      "gust": [
+        15.2,
+        19.2,
+        21.3,
+        21.7,
+        19.7,
+        21.0,
+        21.6,
+        21.1,
+        23.9,
+        22.7,
+        26.0,
+        24.7,
+        21.5,
+        21.2,
+        20.8,
+        19.2,
+        18.5,
+        17.9,
+        16.3,
+        17.0,
+        18.7,
+        18.3,
+        16.9,
+        16.2
+      ],
+      "wind_dir": [
+        3.0,
+        348.0,
+        5.0,
+        360.0,
+        347.0,
+        341.0,
+        341.0,
+        327.0,
+        328.0,
+        317.0,
+        309.0,
+        301.0,
+        266.0,
+        248.0,
+        206.0,
+        196.0,
+        192.0,
+        192.0,
+        193.0,
+        187.0,
+        192.0,
+        193.0,
+        190.0,
+        189.0
+      ]
+    },
+    "WL": {
+      "name": "温岭沿海",
+      "times": [
+        "11:00",
+        "12:00",
+        "13:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00",
+        "23:00",
+        "00:00",
+        "01:00",
+        "02:00",
+        "03:00",
+        "04:00",
+        "05:00",
+        "06:00",
+        "07:00",
+        "08:00",
+        "09:00",
+        "10:00"
+      ],
+      "full_times": [
+        "2026-07-11 11:00:00",
+        "2026-07-11 12:00:00",
+        "2026-07-11 13:00:00",
+        "2026-07-11 14:00:00",
+        "2026-07-11 15:00:00",
+        "2026-07-11 16:00:00",
+        "2026-07-11 17:00:00",
+        "2026-07-11 18:00:00",
+        "2026-07-11 19:00:00",
+        "2026-07-11 20:00:00",
+        "2026-07-11 21:00:00",
+        "2026-07-11 22:00:00",
+        "2026-07-11 23:00:00",
+        "2026-07-12 00:00:00",
+        "2026-07-12 01:00:00",
+        "2026-07-12 02:00:00",
+        "2026-07-12 03:00:00",
+        "2026-07-12 04:00:00",
+        "2026-07-12 05:00:00",
+        "2026-07-12 06:00:00",
+        "2026-07-12 07:00:00",
+        "2026-07-12 08:00:00",
+        "2026-07-12 09:00:00",
+        "2026-07-12 10:00:00"
+      ],
+      "temperature": [
+        30.3,
+        28.2,
+        25.4,
+        25.6,
+        25.6,
+        25.6,
+        25.9,
+        26.1,
+        26.2,
+        26.2,
+        26.1,
+        25.5,
+        25.3,
+        25.7,
+        25.7,
+        25.9,
+        26.0,
+        25.8,
+        25.7,
+        25.6,
+        25.9,
+        26.3,
+        27.1,
+        27.0
+      ],
+      "humidity": [
+        74.0,
+        79.0,
+        93.0,
+        94.0,
+        94.0,
+        94.0,
+        94.0,
+        94.0,
+        94.0,
+        95.0,
+        94.0,
+        95.0,
+        95.0,
+        96.0,
+        93.0,
+        95.0,
+        95.0,
+        95.0,
+        95.0,
+        96.0,
+        96.0,
+        96.0,
+        93.0,
+        95.0
+      ],
+      "precip": [
+        0.4,
+        1.4,
+        8.6,
+        4.2,
+        4.0,
+        4.9,
+        7.9,
+        10.6,
+        5.3,
+        6.9,
+        2.8,
+        4.4,
+        3.5,
+        1.9,
+        7.7,
+        4.2,
+        4.4,
+        4.7,
+        5.2,
+        2.4,
+        2.2,
+        2.0,
+        1.2,
+        1.5
+      ],
+      "pressure": [
+        995.0,
+        993.3,
+        991.6,
+        990.3,
+        987.4,
+        984.8,
+        982.3,
+        979.1,
+        977.6,
+        975.5,
+        973.9,
+        968.5,
+        965.8,
+        968.9,
+        974.1,
+        979.5,
+        982.0,
+        984.9,
+        987.0,
+        989.2,
+        991.1,
+        992.2,
+        993.7,
+        995.3
+      ],
+      "wind": [
+        11.48,
+        11.83,
+        12.54,
+        13.12,
+        13.24,
+        13.98,
+        14.42,
+        15.98,
+        15.39,
+        16.94,
+        15.07,
+        17.24,
+        13.1,
+        12.9,
+        15.31,
+        14.21,
+        13.1,
+        11.35,
+        9.95,
+        10.15,
+        10.05,
+        10.31,
+        10.25,
+        10.4
+      ],
+      "gust": [
+        24.1,
+        26.0,
+        27.4,
+        26.8,
+        27.9,
+        28.2,
+        29.6,
+        31.8,
+        32.1,
+        30.5,
+        33.1,
+        33.2,
+        34.1,
+        25.9,
+        30.0,
+        31.3,
+        28.1,
+        25.9,
+        22.9,
+        20.8,
+        21.0,
+        20.8,
+        20.8,
+        20.8
+      ],
+      "wind_dir": [
+        33.0,
+        32.0,
+        32.0,
+        33.0,
+        25.0,
+        27.0,
+        29.0,
+        40.0,
+        49.0,
+        45.0,
+        59.0,
+        59.0,
+        99.0,
+        139.0,
+        171.0,
+        175.0,
+        180.0,
+        179.0,
+        179.0,
+        181.0,
+        180.0,
+        182.0,
+        181.0,
+        180.0
+      ]
+    },
+    "WZ": {
+      "name": "温州城区",
+      "times": [
+        "11:00",
+        "12:00",
+        "13:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00",
+        "23:00",
+        "00:00",
+        "01:00",
+        "02:00",
+        "03:00",
+        "04:00",
+        "05:00",
+        "06:00",
+        "07:00",
+        "08:00",
+        "09:00",
+        "10:00"
+      ],
+      "full_times": [
+        "2026-07-11 11:00:00",
+        "2026-07-11 12:00:00",
+        "2026-07-11 13:00:00",
+        "2026-07-11 14:00:00",
+        "2026-07-11 15:00:00",
+        "2026-07-11 16:00:00",
+        "2026-07-11 17:00:00",
+        "2026-07-11 18:00:00",
+        "2026-07-11 19:00:00",
+        "2026-07-11 20:00:00",
+        "2026-07-11 21:00:00",
+        "2026-07-11 22:00:00",
+        "2026-07-11 23:00:00",
+        "2026-07-12 00:00:00",
+        "2026-07-12 01:00:00",
+        "2026-07-12 02:00:00",
+        "2026-07-12 03:00:00",
+        "2026-07-12 04:00:00",
+        "2026-07-12 05:00:00",
+        "2026-07-12 06:00:00",
+        "2026-07-12 07:00:00",
+        "2026-07-12 08:00:00",
+        "2026-07-12 09:00:00",
+        "2026-07-12 10:00:00"
+      ],
+      "temperature": [
+        28.5,
+        29.1,
+        27.4,
+        25.6,
+        26.4,
+        26.1,
+        25.6,
+        25.4,
+        25.4,
+        25.4,
+        25.3,
+        25.5,
+        25.4,
+        25.4,
+        25.5,
+        25.3,
+        25.2,
+        25.3,
+        25.6,
+        25.8,
+        25.9,
+        26.1,
+        26.4,
+        26.6
+      ],
+      "humidity": [
+        79.0,
+        76.0,
+        84.0,
+        91.0,
+        88.0,
+        89.0,
+        91.0,
+        90.0,
+        90.0,
+        92.0,
+        92.0,
+        91.0,
+        91.0,
+        91.0,
+        90.0,
+        93.0,
+        93.0,
+        94.0,
+        94.0,
+        94.0,
+        95.0,
+        95.0,
+        95.0,
+        95.0
+      ],
+      "precip": [
+        0.4,
+        0.5,
+        3.3,
+        8.0,
+        2.1,
+        2.2,
+        3.5,
+        6.7,
+        11.6,
+        6.0,
+        11.1,
+        4.3,
+        4.6,
+        8.4,
+        8.2,
+        7.0,
+        4.2,
+        1.6,
+        5.7,
+        4.9,
+        5.3,
+        5.8,
+        3.1,
+        3.8
+      ],
+      "pressure": [
+        994.9,
+        993.2,
+        991.2,
+        990.0,
+        988.3,
+        985.5,
+        983.3,
+        980.4,
+        977.5,
+        976.8,
+        973.9,
+        972.8,
+        969.8,
+        969.8,
+        973.2,
+        977.6,
+        980.8,
+        983.8,
+        986.3,
+        988.7,
+        990.7,
+        991.9,
+        993.3,
+        994.7
+      ],
+      "wind": [
+        5.56,
+        6.84,
+        7.93,
+        6.8,
+        7.5,
+        8.21,
+        8.04,
+        9.32,
+        10.41,
+        10.01,
+        10.75,
+        10.66,
+        11.83,
+        10.97,
+        8.76,
+        8.81,
+        8.58,
+        7.25,
+        6.55,
+        6.45,
+        6.55,
+        5.65,
+        5.8,
+        5.67
+      ],
+      "gust": [
+        15.2,
+        15.6,
+        21.2,
+        21.5,
+        16.1,
+        20.0,
+        17.9,
+        18.8,
+        24.1,
+        21.8,
+        25.1,
+        23.2,
+        25.4,
+        25.7,
+        22.9,
+        18.2,
+        18.6,
+        17.5,
+        14.8,
+        13.2,
+        13.9,
+        13.4,
+        11.8,
+        12.5
+      ],
+      "wind_dir": [
+        3.0,
+        354.0,
+        8.0,
+        2.0,
+        351.0,
+        349.0,
+        340.0,
+        330.0,
+        329.0,
+        320.0,
+        315.0,
+        309.0,
+        287.0,
+        264.0,
+        230.0,
+        189.0,
+        185.0,
+        181.0,
+        182.0,
+        179.0,
+        180.0,
+        178.0,
+        180.0,
+        175.0
+      ]
+    },
+    "YH": {
+      "name": "玉环坎门",
+      "times": [
+        "11:00",
+        "12:00",
+        "13:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00",
+        "23:00",
+        "00:00",
+        "01:00",
+        "02:00",
+        "03:00",
+        "04:00",
+        "05:00",
+        "06:00",
+        "07:00",
+        "08:00",
+        "09:00",
+        "10:00"
+      ],
+      "full_times": [
+        "2026-07-11 11:00:00",
+        "2026-07-11 12:00:00",
+        "2026-07-11 13:00:00",
+        "2026-07-11 14:00:00",
+        "2026-07-11 15:00:00",
+        "2026-07-11 16:00:00",
+        "2026-07-11 17:00:00",
+        "2026-07-11 18:00:00",
+        "2026-07-11 19:00:00",
+        "2026-07-11 20:00:00",
+        "2026-07-11 21:00:00",
+        "2026-07-11 22:00:00",
+        "2026-07-11 23:00:00",
+        "2026-07-12 00:00:00",
+        "2026-07-12 01:00:00",
+        "2026-07-12 02:00:00",
+        "2026-07-12 03:00:00",
+        "2026-07-12 04:00:00",
+        "2026-07-12 05:00:00",
+        "2026-07-12 06:00:00",
+        "2026-07-12 07:00:00",
+        "2026-07-12 08:00:00",
+        "2026-07-12 09:00:00",
+        "2026-07-12 10:00:00"
+      ],
+      "temperature": [
+        29.3,
+        27.7,
+        25.6,
+        25.7,
+        25.7,
+        25.6,
+        25.7,
+        25.8,
+        26.2,
+        26.2,
+        25.9,
+        25.3,
+        25.6,
+        26.1,
+        26.7,
+        26.9,
+        26.8,
+        26.9,
+        26.9,
+        26.9,
+        26.8,
+        27.2,
+        27.4,
+        27.3
+      ],
+      "humidity": [
+        74.0,
+        81.0,
+        93.0,
+        94.0,
+        94.0,
+        95.0,
+        95.0,
+        95.0,
+        94.0,
+        95.0,
+        95.0,
+        96.0,
+        94.0,
+        92.0,
+        91.0,
+        92.0,
+        90.0,
+        91.0,
+        90.0,
+        89.0,
+        90.0,
+        91.0,
+        93.0,
+        92.0
+      ],
+      "precip": [
+        0.3,
+        1.0,
+        10.8,
+        9.3,
+        2.9,
+        5.3,
+        8.1,
+        16.6,
+        5.1,
+        12.5,
+        6.3,
+        4.5,
+        6.0,
+        6.4,
+        11.7,
+        7.3,
+        6.6,
+        7.2,
+        6.2,
+        2.1,
+        2.4,
+        1.7,
+        1.1,
+        1.9
+      ],
+      "pressure": [
+        993.5,
+        991.6,
+        989.5,
+        988.4,
+        985.7,
+        982.7,
+        979.4,
+        975.9,
+        973.7,
+        971.7,
+        969.3,
+        963.9,
+        961.6,
+        967.0,
+        974.3,
+        979.4,
+        982.4,
+        985.1,
+        987.2,
+        989.6,
+        991.4,
+        992.6,
+        994.1,
+        995.6
+      ],
+      "wind": [
+        11.64,
+        13.07,
+        13.66,
+        13.04,
+        14.25,
+        14.27,
+        15.54,
+        15.95,
+        16.51,
+        16.88,
+        16.17,
+        14.44,
+        3.82,
+        15.57,
+        22.93,
+        19.16,
+        17.6,
+        16.0,
+        15.73,
+        14.72,
+        15.48,
+        15.32,
+        13.91,
+        13.89
+      ],
+      "gust": [
+        24.8,
+        26.6,
+        26.6,
+        27.3,
+        27.1,
+        27.6,
+        29.2,
+        31.5,
+        31.4,
+        31.3,
+        31.2,
+        30.5,
+        25.4,
+        27.5,
+        41.0,
+        40.9,
+        34.8,
+        32.4,
+        29.8,
+        28.1,
+        28.2,
+        28.2,
+        27.3,
+        25.1
+      ],
+      "wind_dir": [
+        24.0,
+        22.0,
+        22.0,
+        18.0,
+        14.0,
+        11.0,
+        10.0,
+        8.0,
+        20.0,
+        21.0,
+        30.0,
+        14.0,
+        76.0,
+        199.0,
+        188.0,
+        185.0,
+        190.0,
+        186.0,
+        187.0,
+        186.0,
+        186.0,
+        188.0,
+        185.0,
+        184.0
+      ]
+    },
+    "YQ": {
+      "name": "乐清清江",
+      "times": [
+        "11:00",
+        "12:00",
+        "13:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00",
+        "23:00",
+        "00:00",
+        "01:00",
+        "02:00",
+        "03:00",
+        "04:00",
+        "05:00",
+        "06:00",
+        "07:00",
+        "08:00",
+        "09:00",
+        "10:00"
+      ],
+      "full_times": [
+        "2026-07-11 11:00:00",
+        "2026-07-11 12:00:00",
+        "2026-07-11 13:00:00",
+        "2026-07-11 14:00:00",
+        "2026-07-11 15:00:00",
+        "2026-07-11 16:00:00",
+        "2026-07-11 17:00:00",
+        "2026-07-11 18:00:00",
+        "2026-07-11 19:00:00",
+        "2026-07-11 20:00:00",
+        "2026-07-11 21:00:00",
+        "2026-07-11 22:00:00",
+        "2026-07-11 23:00:00",
+        "2026-07-12 00:00:00",
+        "2026-07-12 01:00:00",
+        "2026-07-12 02:00:00",
+        "2026-07-12 03:00:00",
+        "2026-07-12 04:00:00",
+        "2026-07-12 05:00:00",
+        "2026-07-12 06:00:00",
+        "2026-07-12 07:00:00",
+        "2026-07-12 08:00:00",
+        "2026-07-12 09:00:00",
+        "2026-07-12 10:00:00"
+      ],
+      "temperature": [
+        27.5,
+        27.6,
+        26.5,
+        25.9,
+        26.3,
+        26.0,
+        25.9,
+        26.0,
+        26.1,
+        26.3,
+        26.3,
+        25.9,
+        25.8,
+        25.7,
+        26.5,
+        27.2,
+        27.2,
+        27.3,
+        27.3,
+        27.3,
+        27.0,
+        27.5,
+        27.5,
+        27.8
+      ],
+      "humidity": [
+        88.0,
+        89.0,
+        89.0,
+        91.0,
+        91.0,
+        91.0,
+        91.0,
+        91.0,
+        92.0,
+        91.0,
+        94.0,
+        92.0,
+        92.0,
+        94.0,
+        91.0,
+        90.0,
+        91.0,
+        90.0,
+        90.0,
+        86.0,
+        90.0,
+        91.0,
+        91.0,
+        90.0
+      ],
+      "precip": [
+        0.7,
+        2.0,
+        6.7,
+        10.8,
+        3.9,
+        3.8,
+        7.6,
+        11.1,
+        8.5,
+        7.6,
+        6.2,
+        4.0,
+        13.2,
+        9.1,
+        10.2,
+        10.0,
+        6.3,
+        6.1,
+        7.0,
+        7.2,
+        4.6,
+        2.5,
+        1.8,
+        1.9
+      ],
+      "pressure": [
+        994.0,
+        992.4,
+        990.3,
+        989.2,
+        986.7,
+        983.7,
+        981.1,
+        977.6,
+        975.8,
+        973.5,
+        971.6,
+        967.9,
+        963.4,
+        965.2,
+        972.2,
+        977.8,
+        981.1,
+        984.1,
+        986.5,
+        989.0,
+        990.9,
+        992.1,
+        993.5,
+        994.9
+      ],
+      "wind": [
+        9.11,
+        10.55,
+        12.97,
+        12.47,
+        14.15,
+        13.4,
+        13.86,
+        15.27,
+        14.07,
+        15.55,
+        14.42,
+        14.61,
+        10.12,
+        8.47,
+        17.86,
+        17.38,
+        16.9,
+        15.29,
+        14.52,
+        14.92,
+        13.57,
+        12.86,
+        13.17,
+        13.23
+      ],
+      "gust": [
+        19.5,
+        24.1,
+        26.2,
+        27.3,
+        25.9,
+        27.5,
+        27.9,
+        28.6,
+        30.0,
+        30.0,
+        30.8,
+        28.5,
+        28.3,
+        18.3,
+        31.2,
+        36.0,
+        32.1,
+        31.2,
+        28.3,
+        28.0,
+        27.8,
+        25.6,
+        25.6,
+        25.0
+      ],
+      "wind_dir": [
+        357.0,
+        19.0,
+        20.0,
+        17.0,
+        10.0,
+        1.0,
+        2.0,
+        357.0,
+        3.0,
+        1.0,
+        12.0,
+        353.0,
+        356.0,
+        214.0,
+        194.0,
+        190.0,
+        192.0,
+        190.0,
+        193.0,
+        193.0,
+        191.0,
+        191.0,
+        194.0,
+        192.0
+      ]
+    },
+    "YW": {
+      "name": "义乌",
+      "times": [
+        "11:00",
+        "12:00",
+        "13:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00",
+        "23:00",
+        "00:00",
+        "01:00",
+        "02:00",
+        "03:00",
+        "04:00",
+        "05:00",
+        "06:00",
+        "07:00",
+        "08:00",
+        "09:00",
+        "10:00"
+      ],
+      "full_times": [
+        "2026-07-11 11:00:00",
+        "2026-07-11 12:00:00",
+        "2026-07-11 13:00:00",
+        "2026-07-11 14:00:00",
+        "2026-07-11 15:00:00",
+        "2026-07-11 16:00:00",
+        "2026-07-11 17:00:00",
+        "2026-07-11 18:00:00",
+        "2026-07-11 19:00:00",
+        "2026-07-11 20:00:00",
+        "2026-07-11 21:00:00",
+        "2026-07-11 22:00:00",
+        "2026-07-11 23:00:00",
+        "2026-07-12 00:00:00",
+        "2026-07-12 01:00:00",
+        "2026-07-12 02:00:00",
+        "2026-07-12 03:00:00",
+        "2026-07-12 04:00:00",
+        "2026-07-12 05:00:00",
+        "2026-07-12 06:00:00",
+        "2026-07-12 07:00:00",
+        "2026-07-12 08:00:00",
+        "2026-07-12 09:00:00",
+        "2026-07-12 10:00:00"
+      ],
+      "temperature": [
+        30.8,
+        31.8,
+        31.1,
+        30.6,
+        30.4,
+        29.5,
+        28.3,
+        28.1,
+        26.0,
+        25.7,
+        25.6,
+        25.3,
+        25.2,
+        25.3,
+        25.0,
+        25.6,
+        25.2,
+        24.9,
+        24.6,
+        24.9,
+        25.3,
+        25.4,
+        25.4,
+        26.2
+      ],
+      "humidity": [
+        66.0,
+        63.0,
+        62.0,
+        67.0,
+        67.0,
+        67.0,
+        73.0,
+        75.0,
+        87.0,
+        90.0,
+        89.0,
+        92.0,
+        93.0,
+        92.0,
+        94.0,
+        93.0,
+        94.0,
+        96.0,
+        96.0,
+        95.0,
+        92.0,
+        93.0,
+        94.0,
+        93.0
+      ],
+      "precip": [
+        0.0,
+        0.3,
+        0.2,
+        1.6,
+        0.1,
+        0.3,
+        0.4,
+        0.0,
+        1.8,
+        1.6,
+        0.5,
+        1.6,
+        4.7,
+        0.6,
+        1.2,
+        2.4,
+        1.7,
+        4.8,
+        12.4,
+        11.7,
+        7.6,
+        7.6,
+        3.4,
+        1.6
+      ],
+      "pressure": [
+        999.9,
+        998.7,
+        997.3,
+        996.3,
+        995.6,
+        994.4,
+        993.5,
+        992.3,
+        991.2,
+        990.2,
+        989.0,
+        987.2,
+        984.8,
+        983.3,
+        980.7,
+        979.3,
+        977.4,
+        977.0,
+        978.0,
+        980.4,
+        983.4,
+        985.8,
+        987.9,
+        989.5
+      ],
+      "wind": [
+        4.6,
+        4.88,
+        6.05,
+        5.43,
+        5.17,
+        5.52,
+        6.09,
+        5.5,
+        6.2,
+        6.36,
+        6.13,
+        7.23,
+        6.91,
+        5.98,
+        6.47,
+        6.19,
+        6.65,
+        6.81,
+        7.54,
+        9.2,
+        6.91,
+        4.8,
+        4.46,
+        4.21
+      ],
+      "gust": [
+        12.5,
+        13.8,
+        15.2,
+        14.7,
+        12.6,
+        12.7,
+        11.9,
+        12.3,
+        13.1,
+        13.6,
+        13.0,
+        15.2,
+        14.5,
+        13.6,
+        13.1,
+        14.1,
+        13.0,
+        13.1,
+        14.6,
+        17.6,
+        17.7,
+        13.0,
+        9.1,
+        8.5
+      ],
+      "wind_dir": [
+        41.0,
+        38.0,
+        42.0,
+        22.0,
+        25.0,
+        25.0,
+        18.0,
+        1.0,
+        353.0,
+        349.0,
+        344.0,
+        346.0,
+        347.0,
+        336.0,
+        317.0,
+        322.0,
+        316.0,
+        291.0,
+        264.0,
+        241.0,
+        216.0,
+        182.0,
+        162.0,
+        162.0
+      ]
+    }
+  },
+  "regional": [
+    {
+      "time": "2026-07-11 11:00:00",
+      "label": "11:00",
+      "mean_precip": 0.45,
+      "max_gust": 24.8,
+      "mean_pressure": 995.2,
+      "mean_wind": 8.33
+    },
+    {
+      "time": "2026-07-11 12:00:00",
+      "label": "12:00",
+      "mean_precip": 0.92,
+      "max_gust": 26.6,
+      "mean_pressure": 993.5,
+      "mean_wind": 9.3
+    },
+    {
+      "time": "2026-07-11 13:00:00",
+      "label": "13:00",
+      "mean_precip": 5.32,
+      "max_gust": 27.4,
+      "mean_pressure": 991.6,
+      "mean_wind": 10.52
+    },
+    {
+      "time": "2026-07-11 14:00:00",
+      "label": "14:00",
+      "mean_precip": 8.4,
+      "max_gust": 27.3,
+      "mean_pressure": 990.5,
+      "mean_wind": 9.94
+    },
+    {
+      "time": "2026-07-11 15:00:00",
+      "label": "15:00",
+      "mean_precip": 2.73,
+      "max_gust": 27.9,
+      "mean_pressure": 988.4,
+      "mean_wind": 10.54
+    },
+    {
+      "time": "2026-07-11 16:00:00",
+      "label": "16:00",
+      "mean_precip": 3.32,
+      "max_gust": 28.2,
+      "mean_pressure": 985.8,
+      "mean_wind": 10.85
+    },
+    {
+      "time": "2026-07-11 17:00:00",
+      "label": "17:00",
+      "mean_precip": 5.22,
+      "max_gust": 29.6,
+      "mean_pressure": 983.6,
+      "mean_wind": 11.28
+    },
+    {
+      "time": "2026-07-11 18:00:00",
+      "label": "18:00",
+      "mean_precip": 8.33,
+      "max_gust": 31.8,
+      "mean_pressure": 980.6,
+      "mean_wind": 12.24
+    },
+    {
+      "time": "2026-07-11 19:00:00",
+      "label": "19:00",
+      "mean_precip": 7.45,
+      "max_gust": 32.1,
+      "mean_pressure": 978.6,
+      "mean_wind": 12.39
+    },
+    {
+      "time": "2026-07-11 20:00:00",
+      "label": "20:00",
+      "mean_precip": 7.0,
+      "max_gust": 31.3,
+      "mean_pressure": 977.1,
+      "mean_wind": 12.97
+    },
+    {
+      "time": "2026-07-11 21:00:00",
+      "label": "21:00",
+      "mean_precip": 6.9,
+      "max_gust": 33.1,
+      "mean_pressure": 975.1,
+      "mean_wind": 12.65
+    },
+    {
+      "time": "2026-07-11 22:00:00",
+      "label": "22:00",
+      "mean_precip": 3.72,
+      "max_gust": 33.2,
+      "mean_pressure": 972.1,
+      "mean_wind": 12.65
+    },
+    {
+      "time": "2026-07-11 23:00:00",
+      "label": "23:00",
+      "mean_precip": 5.6,
+      "max_gust": 34.1,
+      "mean_pressure": 969.7,
+      "mean_wind": 9.42
+    },
+    {
+      "time": "2026-07-12 00:00:00",
+      "label": "00:00",
+      "mean_precip": 4.93,
+      "max_gust": 27.5,
+      "mean_pressure": 971.3,
+      "mean_wind": 10.85
+    },
+    {
+      "time": "2026-07-12 01:00:00",
+      "label": "01:00",
+      "mean_precip": 7.95,
+      "max_gust": 41.0,
+      "mean_pressure": 975.3,
+      "mean_wind": 13.49
+    },
+    {
+      "time": "2026-07-12 02:00:00",
+      "label": "02:00",
+      "mean_precip": 6.32,
+      "max_gust": 40.9,
+      "mean_pressure": 978.9,
+      "mean_wind": 12.48
+    },
+    {
+      "time": "2026-07-12 03:00:00",
+      "label": "03:00",
+      "mean_precip": 4.38,
+      "max_gust": 34.8,
+      "mean_pressure": 981.0,
+      "mean_wind": 12.07
+    },
+    {
+      "time": "2026-07-12 04:00:00",
+      "label": "04:00",
+      "mean_precip": 4.72,
+      "max_gust": 32.4,
+      "mean_pressure": 983.3,
+      "mean_wind": 10.86
+    },
+    {
+      "time": "2026-07-12 05:00:00",
+      "label": "05:00",
+      "mean_precip": 6.68,
+      "max_gust": 29.8,
+      "mean_pressure": 985.3,
+      "mean_wind": 10.53
+    },
+    {
+      "time": "2026-07-12 06:00:00",
+      "label": "06:00",
+      "mean_precip": 6.0,
+      "max_gust": 28.1,
+      "mean_pressure": 987.7,
+      "mean_wind": 10.73
+    },
+    {
+      "time": "2026-07-12 07:00:00",
+      "label": "07:00",
+      "mean_precip": 4.62,
+      "max_gust": 28.2,
+      "mean_pressure": 989.8,
+      "mean_wind": 10.41
+    },
+    {
+      "time": "2026-07-12 08:00:00",
+      "label": "08:00",
+      "mean_precip": 3.85,
+      "max_gust": 28.2,
+      "mean_pressure": 991.1,
+      "mean_wind": 9.54
+    },
+    {
+      "time": "2026-07-12 09:00:00",
+      "label": "09:00",
+      "mean_precip": 2.05,
+      "max_gust": 27.3,
+      "mean_pressure": 992.7,
+      "mean_wind": 9.38
+    },
+    {
+      "time": "2026-07-12 10:00:00",
+      "label": "10:00",
+      "mean_precip": 1.98,
+      "max_gust": 25.1,
+      "mean_pressure": 994.2,
+      "mean_wind": 9.27
+    }
+  ],
+  "highlights": {
+    "top_rain": {
+      "station_id": "YQ",
+      "name": "乐清清江",
+      "city": "温州乐清",
+      "role": "二次登陆点",
+      "lat": 28.12,
+      "lon": 121.0,
+      "precip_24h_mm": 152.8,
+      "max_wind_ms": 17.86,
+      "max_gust_ms": 36.0,
+      "max_gust_level": 12,
+      "min_pressure_hpa": 963.4,
+      "max_rain_1h_mm": 13.2,
+      "peak_landfall_gust_ms": 36.0,
+      "sample_count": 24
+    },
+    "top_gust": {
+      "station_id": "YH",
+      "name": "玉环坎门",
+      "city": "台州玉环",
+      "role": "首次登陆点",
+      "lat": 28.14,
+      "lon": 121.23,
+      "precip_24h_mm": 143.3,
+      "max_wind_ms": 22.93,
+      "max_gust_ms": 41.0,
+      "max_gust_level": 13,
+      "min_pressure_hpa": 961.6,
+      "max_rain_1h_mm": 16.6,
+      "peak_landfall_gust_ms": 41.0,
+      "sample_count": 24
+    },
+    "lowest_pressure": {
+      "station_id": "YH",
+      "name": "玉环坎门",
+      "city": "台州玉环",
+      "role": "首次登陆点",
+      "lat": 28.14,
+      "lon": 121.23,
+      "precip_24h_mm": 143.3,
+      "max_wind_ms": 22.93,
+      "max_gust_ms": 41.0,
+      "max_gust_level": 13,
+      "min_pressure_hpa": 961.6,
+      "max_rain_1h_mm": 16.6,
+      "peak_landfall_gust_ms": 41.0,
+      "sample_count": 24
+    },
+    "total_stations": 6,
+    "total_records": 144
+  },
+  "insights": [
+    "近24小时（07-11 11:00–07-12 10:00 北京时）六站累计降水最高为乐清清江 152.8 mm。",
+    "最大阵风出现在玉环坎门，达 41.0 m/s（约13级），与台风登陆时段强风圈吻合。",
+    "最低气压出现在玉环坎门，为 961.6 hPa，对应台风中心过境前后的气压谷。",
+    "玉环/乐清站在 7/11 23时–7/12 01时出现风向由偏北急转为偏南，呈现典型台风中心过境风向突变。",
+    "义乌站降水峰值滞后至 7/12 05–07时，与「巴威」减弱后中心移至义乌境内的路径一致。",
+    "登陆并不等于危险解除：内陆站点风雨仍强，且远距离水汽将继续影响华东以北地区。"
+  ],
+  "data_note": "观测数据由 Open-Meteo 小时场入库 MySQL（typhoon_obs）后提取；路径信息综合中央气象台公开通报。"
+};
+/**
+ * 台风巴威观测可视化主逻辑
+ * 从 analysis.json 读取 MySQL 提取结果并渲染图表 / 地图
+ */
+
+/** @typedef {import('../data/analysis.json')} AnalysisData */
+
+const PALETTE = {
+  primary: "#1E40AF",
+  secondary: "#3B82F6",
+  accent: "#D97706",
+  rain: "#0EA5E9",
+  gust: "#DC2626",
+  pressure: "#1E3A8A",
+  humidity: "#64748B",
+};
+
+/** @type {Chart[]} */
+const charts = [];
+
+/**
+ * 格式化北京时窗口文案
+ * @param {{start:string,end:string}} window
+ * @returns {string}
+ */
+function formatWindow(window) {
+  return `${window.start.slice(5, 16).replace(" ", " ")} → ${window.end.slice(5, 16)} CST`;
+}
+
+/**
+ * 渲染 KPI 卡片
+ * @param {any} data
+ */
+function renderKpis(data) {
+  const h = data.highlights;
+  const items = [
+    {
+      label: "24h 最大降水",
+      value: `${h.top_rain.precip_24h_mm}`,
+      unit: "mm",
+      sub: h.top_rain.name,
+      cls: "warn",
+    },
+    {
+      label: "最大阵风",
+      value: `${h.top_gust.max_gust_ms}`,
+      unit: "m/s",
+      sub: `${h.top_gust.name} · 约${h.top_gust.max_gust_level}级`,
+      cls: "alert",
+    },
+    {
+      label: "最低气压",
+      value: `${h.lowest_pressure.min_pressure_hpa}`,
+      unit: "hPa",
+      sub: h.lowest_pressure.name,
+      cls: "",
+    },
+    {
+      label: "样本规模",
+      value: `${h.total_records}`,
+      unit: "条",
+      sub: `${h.total_stations} 站 × 近24小时`,
+      cls: "",
+    },
+  ];
+
+  const root = document.getElementById("kpiGrid");
+  root.innerHTML = items
+    .map(
+      (item) => `
+      <article class="kpi ${item.cls}">
+        <p class="label">${item.label}</p>
+        <p class="value">${item.value}<small style="font-size:0.55em;margin-left:0.25rem">${item.unit}</small></p>
+        <p class="sub">${item.sub}</p>
+      </article>`
+    )
+    .join("");
+}
+
+/**
+ * 渲染登陆时间线
+ * @param {any} data
+ */
+function renderTimeline(data) {
+  const t = data.typhoon;
+  const nodes = [
+    {
+      time: t.landfall_1.time,
+      title: "玉环坎门首次登陆",
+      detail: `${t.landfall_1.level} · ${t.landfall_1.wind_ms} m/s · ${t.landfall_1.pressure} hPa · ${t.landfall_1.place}`,
+    },
+    {
+      time: t.landfall_2.time,
+      title: "乐清清江二次登陆",
+      detail: `${t.landfall_2.level} · ${t.landfall_2.wind_ms} m/s · ${t.landfall_2.pressure} hPa · ${t.landfall_2.place}`,
+    },
+    ...data.track
+      .filter((p) => !p.note.includes("登陆"))
+      .map((p) => ({
+        time: p.track_time.slice(0, 16),
+        title: p.category,
+        detail: `${p.note} · 中心风速 ${p.wind_ms} m/s · ${p.pressure_hpa} hPa`,
+      })),
+  ].sort((a, b) => a.time.localeCompare(b.time));
+
+  document.getElementById("landfallTimeline").innerHTML = nodes
+    .map(
+      (n) => `
+      <li>
+        <time datetime="${n.time}">${n.time}</time>
+        <div>
+          <strong>${n.title}</strong>
+          <span>${n.detail}</span>
+        </div>
+      </li>`
+    )
+    .join("");
+}
+
+/**
+ * 初始化 Leaflet 路径地图
+ * @param {any} data
+ */
+function renderMap(data) {
+  const map = L.map("stormMap", { scrollWheelZoom: false }).setView([28.2, 121.0], 7);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+    attribution: "&copy; OpenStreetMap &copy; CARTO",
+    maxZoom: 18,
+  }).addTo(map);
+
+  const latlngs = data.track.map((p) => [p.latitude, p.longitude]);
+  L.polyline(latlngs, { color: "#1E40AF", weight: 3, opacity: 0.85 }).addTo(map);
+
+  data.track.forEach((p, idx) => {
+    const isLandfall = String(p.note).includes("登陆");
+    L.circleMarker([p.latitude, p.longitude], {
+      radius: isLandfall ? 8 : 5,
+      color: isLandfall ? "#DC2626" : "#1E40AF",
+      fillColor: isLandfall ? "#FCA5A5" : "#93C5FD",
+      fillOpacity: 0.95,
+      weight: 2,
+    })
+      .bindPopup(
+        `<strong>${p.track_time.slice(5, 16)}</strong><br/>${p.category}<br/>${p.note}<br/>${p.wind_ms} m/s · ${p.pressure_hpa} hPa`
+      )
+      .addTo(map);
+
+    if (idx === data.track.length - 1) {
+      L.marker([p.latitude, p.longitude]).bindPopup("最新路径点").addTo(map);
+    }
+  });
+
+  data.station_stats.forEach((s) => {
+    L.circleMarker([s.lat, s.lon], {
+      radius: 6,
+      color: "#D97706",
+      fillColor: "#FDE68A",
+      fillOpacity: 0.95,
+      weight: 2,
+    })
+      .bindPopup(
+        `<strong>${s.name}</strong><br/>${s.role}<br/>降水 ${s.precip_24h_mm} mm<br/>阵风 ${s.max_gust_ms} m/s`
+      )
+      .addTo(map);
+  });
+
+  map.fitBounds(L.latLngBounds([...latlngs, ...data.station_stats.map((s) => [s.lat, s.lon])]).pad(0.2));
+}
+
+/**
+ * 站点对比柱状图与表格
+ * @param {any} data
+ */
+function renderStationCompare(data) {
+  const stats = data.station_stats;
+  const ctx = document.getElementById("stationBar");
+  charts.push(
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: stats.map((s) => s.name),
+        datasets: [
+          {
+            label: "24h 降水 (mm)",
+            data: stats.map((s) => s.precip_24h_mm),
+            backgroundColor: "rgba(14, 165, 233, 0.75)",
+            borderRadius: 4,
+            yAxisID: "y",
+          },
+          {
+            label: "最大阵风 (m/s)",
+            data: stats.map((s) => s.max_gust_ms),
+            backgroundColor: "rgba(220, 38, 38, 0.7)",
+            borderRadius: 4,
+            yAxisID: "y1",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { position: "top" },
+          tooltip: { enabled: true },
+        },
+        scales: {
+          y: {
+            type: "linear",
+            position: "left",
+            title: { display: true, text: "mm" },
+            grid: { color: "rgba(30,64,175,0.08)" },
+          },
+          y1: {
+            type: "linear",
+            position: "right",
+            title: { display: true, text: "m/s" },
+            grid: { drawOnChartArea: false },
+          },
+        },
+      },
+    })
+  );
+
+  const tbody = document.querySelector("#stationTable tbody");
+  tbody.innerHTML = stats
+    .map(
+      (s) => `
+      <tr>
+        <td>${s.name}</td>
+        <td>${s.role}</td>
+        <td>${s.precip_24h_mm}</td>
+        <td>${s.max_gust_ms}</td>
+        <td>${s.min_pressure_hpa}</td>
+      </tr>`
+    )
+    .join("");
+}
+
+/**
+ * 创建双轴折线/面积图
+ * @param {string} canvasId
+ * @param {string[]} labels
+ * @param {object[]} datasets
+ * @param {object} scales
+ */
+function makeLineChart(canvasId, labels, datasets, scales) {
+  const chart = new Chart(document.getElementById(canvasId), {
+    type: "line",
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      interaction: { mode: "index", intersect: false },
+      plugins: { legend: { position: "top" } },
+      scales,
+      elements: {
+        line: { tension: 0.28, borderWidth: 2 },
+        point: { radius: 0, hitRadius: 8, hoverRadius: 4 },
+      },
+      animation: { duration: 700 },
+    },
+  });
+  charts.push(chart);
+  return chart;
+}
+
+/**
+ * 渲染单站小时序列
+ * @param {any} data
+ * @param {string} stationId
+ */
+function renderSeries(data, stationId) {
+  const series = data.series[stationId];
+  if (!series) return;
+
+  // 清理已有序列图（保留站点对比柱状图）
+  ["pressureWind", "rainHumidity", "regionalChart"].forEach((id) => {
+    const existing = Chart.getChart(id);
+    if (existing) existing.destroy();
+  });
+
+  makeLineChart(
+    "pressureWind",
+    series.times,
+    [
+      {
+        label: "气压 hPa",
+        data: series.pressure,
+        borderColor: PALETTE.pressure,
+        backgroundColor: "rgba(30, 58, 138, 0.12)",
+        fill: true,
+        yAxisID: "y",
+        borderDash: [],
+      },
+      {
+        label: "风速 m/s",
+        data: series.wind,
+        borderColor: PALETTE.secondary,
+        yAxisID: "y1",
+        borderDash: [6, 4],
+      },
+      {
+        label: "阵风 m/s",
+        data: series.gust,
+        borderColor: PALETTE.gust,
+        yAxisID: "y1",
+      },
+    ],
+    {
+      y: {
+        title: { display: true, text: "hPa" },
+        grid: { color: "rgba(30,64,175,0.08)" },
+      },
+      y1: {
+        position: "right",
+        title: { display: true, text: "m/s" },
+        grid: { drawOnChartArea: false },
+      },
+    }
+  );
+
+  makeLineChart(
+    "rainHumidity",
+    series.times,
+    [
+      {
+        label: "小时降水 mm",
+        data: series.precip,
+        borderColor: PALETTE.rain,
+        backgroundColor: "rgba(14, 165, 233, 0.25)",
+        fill: true,
+        yAxisID: "y",
+      },
+      {
+        label: "相对湿度 %",
+        data: series.humidity,
+        borderColor: PALETTE.humidity,
+        yAxisID: "y1",
+        borderDash: [4, 4],
+      },
+    ],
+    {
+      y: {
+        title: { display: true, text: "mm" },
+        grid: { color: "rgba(30,64,175,0.08)" },
+      },
+      y1: {
+        position: "right",
+        min: 50,
+        max: 100,
+        title: { display: true, text: "%" },
+        grid: { drawOnChartArea: false },
+      },
+    }
+  );
+
+  const regional = data.regional;
+  makeLineChart(
+    "regionalChart",
+    regional.map((r) => r.label),
+    [
+      {
+        label: "六站平均气压",
+        data: regional.map((r) => r.mean_pressure),
+        borderColor: PALETTE.pressure,
+        yAxisID: "y",
+      },
+      {
+        label: "六站最大阵风",
+        data: regional.map((r) => r.max_gust),
+        borderColor: PALETTE.gust,
+        yAxisID: "y1",
+        borderDash: [5, 4],
+      },
+      {
+        label: "六站平均降水",
+        data: regional.map((r) => r.mean_precip),
+        borderColor: PALETTE.rain,
+        backgroundColor: "rgba(14,165,233,0.15)",
+        fill: true,
+        yAxisID: "y1",
+      },
+    ],
+    {
+      y: {
+        title: { display: true, text: "hPa" },
+        grid: { color: "rgba(30,64,175,0.08)" },
+      },
+      y1: {
+        position: "right",
+        title: { display: true, text: "m/s · mm" },
+        grid: { drawOnChartArea: false },
+      },
+    }
+  );
+}
+
+/**
+ * 填充研判与页脚
+ * @param {any} data
+ */
+function renderInsights(data) {
+  document.getElementById("insightList").innerHTML = data.insights
+    .map((text) => `<li>${text}</li>`)
+    .join("");
+
+  const t = data.typhoon;
+  const h = data.highlights;
+  document.getElementById("briefBody").textContent =
+    `${t.number}台风「${t.name_zh}」（${t.name_en}，国际编号 ${t.intl_id}）于 ${t.landfall_1.time} 以${t.landfall_1.level}在${t.landfall_1.place}登陆，` +
+    `并于 ${t.landfall_2.time} 在${t.landfall_2.place}再次登陆。` +
+    `近24小时站点资料显示：最大阵风 ${h.top_gust.max_gust_ms} m/s（${h.top_gust.name}），` +
+    `累计降水峰值 ${h.top_rain.precip_24h_mm} mm（${h.top_rain.name}），` +
+    `最低气压 ${h.lowest_pressure.min_pressure_hpa} hPa。` +
+    `${t.impact} 展望：${t.forecast}`;
+
+  document.getElementById("dataNote").textContent = data.data_note;
+}
+
+/**
+ * 绑定站点选择器
+ * @param {any} data
+ */
+function bindStationSelect(data) {
+  const select = document.getElementById("stationSelect");
+  const ids = Object.keys(data.series);
+  select.innerHTML = ids
+    .map((id) => `<option value="${id}">${data.series[id].name}</option>`)
+    .join("");
+
+  const preferred = ids.includes("YH") ? "YH" : ids[0];
+  select.value = preferred;
+  renderSeries(data, preferred);
+
+  select.addEventListener("change", () => {
+    renderSeries(data, select.value);
+  });
+}
+
+/**
+ * 应用入口
+ */
+async function main() {
+  let data;
+  if (window.__ANALYSIS__) {
+    data = window.__ANALYSIS__;
+  } else {
+    const resp = await fetch("./data/analysis.json", { cache: "no-store" });
+    if (!resp.ok) {
+      throw new Error(`无法加载分析数据：${resp.status}`);
+    }
+    data = await resp.json();
+  }
+
+  document.getElementById("windowLabel").textContent = formatWindow(data.window);
+  document.getElementById("heroLead").textContent =
+    `${data.typhoon.number}台风「${data.typhoon.name_zh}」于今日凌晨两度登陆浙江。` +
+    `本页展示 ${formatWindow(data.window)} 六站观测（MySQL 提取）与路径对照分析。`;
+
+  renderKpis(data);
+  renderTimeline(data);
+  renderMap(data);
+  renderStationCompare(data);
+  bindStationSelect(data);
+  renderInsights(data);
+}
+
+main().catch((err) => {
+  console.error(err);
+  document.getElementById("windowLabel").textContent = "数据加载失败";
+  document.getElementById("heroLead").textContent = String(err.message || err);
+});
+
+  </script>
+</body>
+</html>
