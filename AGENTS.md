@@ -25,5 +25,5 @@
 
 - 真实观测数据在阿里云 MySQL(数据库 `tess_yangchen_ms`,主表 `yangchen_record`,约 11 万+ 行)。表结构、示例 SQL 与用法见 skill `.cursor/skills/mysql-weather-db/SKILL.md`。
 - 已配置全局 MySQL MCP server(`@benborla29/mcp-server-mysql`),配置文件 `~/.cursor/mcp.json`(**不入库**),暴露只读工具 `mysql_query`。MCP 只在 Cursor/Agent 会话启动时加载,新增/修改后需新会话才生效。
-- 数据库密码不写入仓库:存于 `~/.cursor/mcp.json`,或作为 Secret `MYSQL_PASS` 注入。终端脚本 `.cursor/skills/mysql-weather-db/scripts/query.py` 从环境变量 `MYSQL_PASS` 读取密码。
-- `~/.cursor/mcp.json` 位于 VM 家目录,其跨会话持久化依赖快照;若未持久化,可用相同连接信息重建(见 skill)。为可复现,建议把数据库密码存为 Cursor Secret。
+- 数据库密码不写入仓库:MCP 配置通过 `"${env:MYSQL_PASS}"` 从 **Cursor Secret `MYSQL_PASS`** 读取(在「Secrets」面板添加);终端脚本 `.cursor/skills/mysql-weather-db/scripts/query.py` 也从环境变量 `MYSQL_PASS` 读取。
+- `~/.cursor/mcp.json` 位于 VM 家目录,其跨会话持久化依赖快照;若未持久化,可用相同连接信息重建(见 skill),密码始终来自 Secret `MYSQL_PASS`。

@@ -17,7 +17,7 @@ description: 查询台风/气象监测 MySQL 数据库(数据库 tess_yangchen_m
 | 数据库 | `tess_yangchen_ms` |
 | 主表 | `yangchen_record` |
 
-密码 **不写入仓库**:已配置在全局 MCP 配置 `~/.cursor/mcp.json` 中;终端脚本通过环境变量 `MYSQL_PASS` 读取。建议将密码存为 Cursor Secret(`MYSQL_PASS`)以便跨会话持久化。
+密码 **不写入仓库**:全局 MCP 配置 `~/.cursor/mcp.json` 通过 `"${env:MYSQL_PASS}"` 从 **Cursor Secret `MYSQL_PASS`** 读取;终端脚本同样从环境变量 `MYSQL_PASS` 读取。请在 Cursor「Secrets」面板添加 Secret `MYSQL_PASS`(值为数据库密码),以便本地与 Cloud Agent 跨会话使用。
 
 ## 使用 MySQL MCP(推荐)
 
