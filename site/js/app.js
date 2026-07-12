@@ -440,11 +440,16 @@ function bindStationSelect(data) {
  * 应用入口
  */
 async function main() {
-  const resp = await fetch("./data/analysis.json", { cache: "no-store" });
-  if (!resp.ok) {
-    throw new Error(`无法加载分析数据：${resp.status}`);
+  let data;
+  if (window.__ANALYSIS__) {
+    data = window.__ANALYSIS__;
+  } else {
+    const resp = await fetch("./data/analysis.json", { cache: "no-store" });
+    if (!resp.ok) {
+      throw new Error(`无法加载分析数据：${resp.status}`);
+    }
+    data = await resp.json();
   }
-  const data = await resp.json();
 
   document.getElementById("windowLabel").textContent = formatWindow(data.window);
   document.getElementById("heroLead").textContent =

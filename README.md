@@ -4,7 +4,11 @@
 
 ## 公共访问
 
-站点通过 GitHub Pages 发布（见仓库 Pages 设置 / Actions）。本地预览：
+- **当前公网预览（Cloudflare Tunnel）**：https://stunning-obviously-ken-convicted.trycloudflare.com/
+- **单文件版**：同域名下 `/standalone.html`（数据已内嵌，便于 CDN 分享）
+- **GitHub Pages**：合并后在仓库 Settings → Pages 启用 `docs/` 或 Actions 工作流，预期地址 `https://xtzhou960821.github.io/typhoon/`
+
+本地预览：
 
 ```bash
 cd site && python3 -m http.server 8080
