@@ -3,15 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台风巴威 · 浙南气象站近24小时观测分析</title>
-  <meta name="description" content="2026年第9号台风「巴威」登陆浙江期间，浙南六站近24小时风雨气压观测可视化分析。" />
+  <title>尤溪施工气象站 · 近24小时观测</title>
+  <meta name="description" content="尤溪施工气象站近24小时温湿度、风速风向、气压、降水、颗粒物与噪声观测看板。" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
 /**
- * 台风巴威观测分析站 — 样式
+ * 尤溪施工气象站观测看板 — 样式
  * 设计系统：UI UX Pro Max Data-Dense Dashboard
  * Primary #1E40AF / Accent #D97706 / Background #F8FAFC
  */
@@ -118,12 +117,12 @@ svg {
 
 .brand-title {
   margin: 0;
-  font-size: clamp(0.85rem, 1.6vw, 1.15rem);
+  font-size: clamp(0.95rem, 2vw, 1.25rem);
   font-weight: 700;
   letter-spacing: 0.01em;
   color: var(--color-foreground);
   line-height: 1.35;
-  max-width: min(52vw, 42rem);
+  max-width: min(56vw, 36rem);
 }
 
 .topbar-meta {
@@ -164,7 +163,7 @@ svg {
 .hero {
   position: relative;
   overflow: hidden;
-  min-height: min(72vh, 640px);
+  min-height: min(68vh, 560px);
   display: grid;
   align-items: end;
   padding: 3.5rem 1.25rem 2.5rem;
@@ -174,8 +173,8 @@ svg {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(120deg, rgba(15, 23, 42, 0.72), rgba(30, 64, 175, 0.45) 55%, rgba(15, 23, 42, 0.55)),
-    url("https://images.unsplash.com/photo-1527482797697-8795b05a13fe?auto=format&fit=crop&w=1800&q=80")
+    linear-gradient(120deg, rgba(15, 23, 42, 0.78), rgba(30, 64, 175, 0.5) 55%, rgba(15, 23, 42, 0.62)),
+    url("https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?auto=format&fit=crop&w=1800&q=80")
       center/cover no-repeat;
   transform: scale(1.04);
   animation: heroDrift 22s ease-in-out infinite alternate;
@@ -198,8 +197,8 @@ svg {
 
 .hero h2 {
   margin: 0;
-  font-size: clamp(1.8rem, 4.5vw, 3rem);
-  line-height: 1.15;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.12;
   font-weight: 700;
 }
 
@@ -274,14 +273,6 @@ svg {
   margin-bottom: 1rem;
 }
 
-.section-head.row {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: end;
-  flex-wrap: wrap;
-}
-
 .section-head h2 {
   margin: 0;
   font-size: 1.35rem;
@@ -323,10 +314,11 @@ svg {
 
 .kpi .value {
   margin: 0.35rem 0 0.15rem;
-  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
   font-weight: 700;
   font-family: var(--font-mono);
   color: var(--color-primary);
+  word-break: break-word;
 }
 
 .kpi .sub {
@@ -343,70 +335,10 @@ svg {
   color: var(--color-accent);
 }
 
-.timeline {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0.75rem;
-}
-
-.timeline li {
-  display: grid;
-  grid-template-columns: 150px 1fr;
-  gap: 0.85rem;
-  padding: 0.85rem 1rem;
-  border-left: 3px solid var(--color-secondary);
-  background: #fff;
-  border-radius: 0 8px 8px 0;
-}
-
-.timeline time {
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  color: var(--color-primary);
-}
-
-.timeline strong {
-  display: block;
-  margin-bottom: 0.15rem;
-}
-
-.timeline span {
-  color: var(--color-soft);
-  font-size: 0.9rem;
-}
-
-.split {
-  display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: 1rem;
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  padding: 0;
-}
-
-.panel {
-  padding: 1.25rem;
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-}
-
-.map {
-  height: 380px;
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
-  overflow: hidden;
-}
-
 .chart-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--grid-gap);
-  margin-bottom: var(--grid-gap);
 }
 
 .chart-box {
@@ -416,36 +348,13 @@ svg {
   background: #fff;
 }
 
-.chart-box.wide {
-  margin-top: 0.25rem;
-}
-
 .chart-box h3 {
   margin: 0 0 0.5rem;
   font-size: 0.95rem;
   color: var(--color-foreground);
 }
 
-.station-select {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.8rem;
-  color: var(--color-soft);
-}
-
-.station-select select {
-  min-width: 160px;
-  padding: 0.45rem 0.6rem;
-  border-radius: 6px;
-  border: 1px solid var(--color-border);
-  background: #fff;
-  font-family: var(--font-sans);
-  cursor: pointer;
-}
-
 .table-wrap {
-  margin-top: 0.85rem;
   overflow: auto;
 }
 
@@ -533,10 +442,6 @@ svg {
   margin: 0.25rem 0;
 }
 
-.leaflet-container {
-  font-family: var(--font-sans);
-}
-
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.45; transform: scale(0.85); }
@@ -557,11 +462,14 @@ svg {
 }
 
 @media (max-width: 1024px) {
-  .kpi { grid-column: span 6; }
-  .split,
+  .kpi { grid-column: span 4; }
   .chart-grid {
     grid-template-columns: 1fr;
   }
+}
+
+@media (max-width: 720px) {
+  .kpi { grid-column: span 6; }
 }
 
 @media (max-width: 640px) {
@@ -570,14 +478,14 @@ svg {
     flex-direction: column;
   }
 
-  .kpi { grid-column: span 12; }
-
-  .timeline li {
-    grid-template-columns: 1fr;
+  .brand-title {
+    max-width: 100%;
   }
 
+  .kpi { grid-column: span 12; }
+
   .hero {
-    min-height: 70vh;
+    min-height: 62vh;
     padding-top: 2.5rem;
   }
 }
@@ -593,7 +501,7 @@ svg {
   }
 }
 
-  </style>
+</style>
 </head>
 <body>
   <a class="skip-link" href="#main">跳到主要内容</a>
@@ -602,12 +510,12 @@ svg {
     <div class="brand">
       <span class="brand-mark" aria-hidden="true"></span>
       <div>
-        <p class="brand-kicker">TYPHON OBS · 2609</p>
-        <h1 class="brand-title">台风巴威-调取智慧工地气象观测站真实数据可视化分析报告</h1>
+        <p class="brand-kicker">YOUXI SITE · WEATHER</p>
+        <h1 class="brand-title">尤溪施工气象站 · 近24小时观测</h1>
       </div>
     </div>
     <div class="topbar-meta">
-      <span class="live-pill" id="livePill"><span class="live-dot"></span>近24小时分析</span>
+      <span class="live-pill" id="livePill"><span class="live-dot"></span>近24小时</span>
       <span class="meta-time" id="windowLabel">加载中…</span>
     </div>
   </header>
@@ -616,100 +524,86 @@ svg {
     <section class="hero" aria-labelledby="heroTitle">
       <div class="hero-bg" aria-hidden="true"></div>
       <div class="hero-content">
-        <p class="eyebrow">2026年第9号 · 凌晨登陆浙江</p>
-        <h2 id="heroTitle">巴威两度登陆，浙南风雨峰值已写入观测序列</h2>
-        <p class="hero-lead" id="heroLead">
-          11日23:20玉环坎门、12日0时乐清清江先后以台风级登陆。下列图表由 MySQL 近24小时站点资料提取，并与中央气象台路径通报交叉解读。
-        </p>
+        <p class="eyebrow" id="heroEyebrow">扬尘 / 气象监测</p>
+        <h2 id="heroTitle">尤溪施工气象站</h2>
+        <p class="hero-lead" id="heroLead">加载近24小时观测…</p>
         <div class="hero-cta">
-          <a class="btn btn-primary" href="#kpis">查看关键指标</a>
-          <a class="btn btn-ghost" href="#map">路径与站点</a>
+          <a class="btn btn-primary" href="#kpis">查看最新读数</a>
+          <a class="btn btn-ghost" href="#series">打开趋势图</a>
         </div>
       </div>
     </section>
 
     <section class="section" id="kpis" aria-labelledby="kpiTitle">
       <div class="section-head">
-        <h2 id="kpiTitle">关键观测峰值</h2>
-        <p>六站近24小时极值 · 北京时</p>
+        <h2 id="kpiTitle">最新观测</h2>
+        <p id="kpiSub">最新一条采样 · 北京时</p>
       </div>
       <div class="kpi-grid" id="kpiGrid"></div>
     </section>
 
-    <section class="section" id="timeline" aria-labelledby="landfallTitle">
+    <section class="section" id="stats" aria-labelledby="statsTitle">
       <div class="section-head">
-        <h2 id="landfallTitle">登陆时间线</h2>
-        <p>公开路径要点与强度演变</p>
+        <h2 id="statsTitle">近24小时极值</h2>
+        <p>温湿度 · 风速 · 气压 · 颗粒物 · 噪声</p>
       </div>
-      <ol class="timeline" id="landfallTimeline"></ol>
-    </section>
-
-    <section class="section split" id="map" aria-labelledby="mapTitle">
-      <div class="panel">
-        <div class="section-head">
-          <h2 id="mapTitle">路径与站点分布</h2>
-          <p>台风中心轨迹 · 观测站角色</p>
-        </div>
-        <div id="stormMap" class="map" role="img" aria-label="台风巴威路径与浙江观测站地图"></div>
-      </div>
-      <div class="panel">
-        <div class="section-head">
-          <h2>站点对比</h2>
-          <p>24小时累计降水 / 最大阵风</p>
-        </div>
-        <canvas id="stationBar" height="280" aria-label="站点降水与阵风对比柱状图"></canvas>
-        <div class="table-wrap">
-          <table class="data-table" id="stationTable">
-            <thead>
-              <tr>
-                <th>站点</th>
-                <th>角色</th>
-                <th>降水mm</th>
-                <th>阵风m/s</th>
-                <th>最低气压</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
+      <div class="table-wrap">
+        <table class="data-table" id="statsTable">
+          <thead>
+            <tr>
+              <th>要素</th>
+              <th>最低</th>
+              <th>最高</th>
+              <th>平均</th>
+              <th>最新</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
       </div>
     </section>
 
     <section class="section" id="series" aria-labelledby="seriesTitle">
-      <div class="section-head row">
-        <div>
-          <h2 id="seriesTitle">小时序列</h2>
-          <p>气压谷、阵风峰与降水脉冲</p>
-        </div>
-        <label class="station-select">
-          站点
-          <select id="stationSelect"></select>
-        </label>
+      <div class="section-head">
+        <h2 id="seriesTitle">近24小时趋势</h2>
+        <p>约5分钟采样 · Chart.js</p>
       </div>
       <div class="chart-grid">
         <div class="chart-box">
-          <h3>气压与风速</h3>
-          <canvas id="pressureWind" height="220"></canvas>
+          <h3>气温与湿度</h3>
+          <canvas id="tempHumidity" height="220" aria-label="气温与湿度折线图"></canvas>
         </div>
         <div class="chart-box">
-          <h3>小时降水与湿度</h3>
-          <canvas id="rainHumidity" height="220"></canvas>
+          <h3>风速与风力</h3>
+          <canvas id="windChart" height="220" aria-label="风速与风力折线图"></canvas>
         </div>
-      </div>
-      <div class="chart-box wide">
-        <h3>区域六站合成 · 平均气压 / 最大阵风 / 平均降水</h3>
-        <canvas id="regionalChart" height="200"></canvas>
+        <div class="chart-box">
+          <h3>气压 (kPa)</h3>
+          <canvas id="pressureChart" height="220" aria-label="气压折线图"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>降水</h3>
+          <canvas id="rainChart" height="220" aria-label="降水折线图"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>PM2.5 / PM10</h3>
+          <canvas id="pmChart" height="220" aria-label="颗粒物折线图"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>噪声</h3>
+          <canvas id="noiseChart" height="220" aria-label="噪声折线图"></canvas>
+        </div>
       </div>
     </section>
 
     <section class="section" id="analysis" aria-labelledby="analysisTitle">
       <div class="section-head">
-        <h2 id="analysisTitle">综合研判</h2>
-        <p>观测信号与台风过程对照</p>
+        <h2 id="analysisTitle">要点摘要</h2>
+        <p>由近24小时序列自动生成</p>
       </div>
       <ul class="insight-list" id="insightList"></ul>
       <article class="brief">
-        <h3>过程摘要</h3>
+        <h3>站点说明</h3>
         <p id="briefBody"></p>
       </article>
     </section>
@@ -720,1941 +614,13 @@ svg {
     <p>设计系统：UI UX Pro Max · Data-Dense Dashboard · Fira Sans / Fira Code</p>
   </footer>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
   <script>
-window.__ANALYSIS__ = {
-  "generated_at": "2026-07-12T10:23:38.315661+08:00",
-  "window": {
-    "start": "2026-07-11 11:00:00",
-    "end": "2026-07-12 10:00:00"
-  },
-  "typhoon": {
-    "name_zh": "巴威",
-    "name_en": "Bavi",
-    "number": "2026年第9号",
-    "intl_id": "2609",
-    "formed": "2026-06-30",
-    "peak_cma": "超强台风级，62 m/s",
-    "min_pressure_lifetime": 910,
-    "landfall_1": {
-      "time": "2026-07-11 23:20",
-      "place": "浙江省台州市玉环市坎门街道沿海",
-      "wind_ms": 40,
-      "pressure": 955,
-      "level": "台风级（13级）"
-    },
-    "landfall_2": {
-      "time": "2026-07-12 00:00",
-      "place": "浙江省温州市乐清市清江镇沿海",
-      "wind_ms": 38,
-      "pressure": 960,
-      "level": "台风级（13级）"
-    },
-    "forecast": "继续以每小时20–25公里向西北移动，13日在安徽东部转向东北，14日由山东半岛移入黄海北部并逐渐变性为温带气旋。",
-    "impact": "体型庞大（直径超1500公里），强风雨影响浙江、福建，远距离水汽输送波及华东、华北、东北十余省区市。",
-    "sources": [
-      "中央气象台台风黄色预警（2026-07-12 06时）",
-      "新华社 / 央视新闻登陆通报",
-      "Open-Meteo 地面再分析小时观测"
-    ]
-  },
-  "track": [
-    {
-      "id": 1,
-      "track_time": "2026-07-11 12:00:00",
-      "latitude": 25.7,
-      "longitude": 124.1,
-      "wind_ms": 42.0,
-      "pressure_hpa": 955.0,
-      "category": "强台风级",
-      "note": "距温州东南约423公里"
-    },
-    {
-      "id": 2,
-      "track_time": "2026-07-11 20:00:00",
-      "latitude": 27.4,
-      "longitude": 122.3,
-      "wind_ms": 40.0,
-      "pressure_hpa": 955.0,
-      "category": "台风级",
-      "note": "逼近浙南沿海"
-    },
-    {
-      "id": 3,
-      "track_time": "2026-07-11 23:20:00",
-      "latitude": 28.08,
-      "longitude": 121.27,
-      "wind_ms": 40.0,
-      "pressure_hpa": 955.0,
-      "category": "台风级",
-      "note": "玉环坎门首次登陆"
-    },
-    {
-      "id": 4,
-      "track_time": "2026-07-12 00:00:00",
-      "latitude": 28.15,
-      "longitude": 121.05,
-      "wind_ms": 38.0,
-      "pressure_hpa": 960.0,
-      "category": "台风级",
-      "note": "乐清清江二次登陆"
-    },
-    {
-      "id": 5,
-      "track_time": "2026-07-12 05:00:00",
-      "latitude": 29.3,
-      "longitude": 120.0,
-      "wind_ms": 30.0,
-      "pressure_hpa": 970.0,
-      "category": "强热带风暴级",
-      "note": "减弱，中心位于义乌境内"
-    },
-    {
-      "id": 6,
-      "track_time": "2026-07-12 08:00:00",
-      "latitude": 29.8,
-      "longitude": 119.5,
-      "wind_ms": 28.0,
-      "pressure_hpa": 975.0,
-      "category": "强热带风暴级",
-      "note": "继续西北行，强度减弱"
-    }
-  ],
-  "stations": [
-    {
-      "station_id": "RA",
-      "name": "瑞安沿海",
-      "city": "温州瑞安",
-      "latitude": 27.78,
-      "longitude": 120.63,
-      "role_label": "南部风圈"
-    },
-    {
-      "station_id": "WL",
-      "name": "温岭沿海",
-      "city": "台州温岭",
-      "latitude": 28.45,
-      "longitude": 121.42,
-      "role_label": "北部风圈"
-    },
-    {
-      "station_id": "WZ",
-      "name": "温州城区",
-      "city": "温州",
-      "latitude": 28.01,
-      "longitude": 120.67,
-      "role_label": "核心影响区"
-    },
-    {
-      "station_id": "YH",
-      "name": "玉环坎门",
-      "city": "台州玉环",
-      "latitude": 28.14,
-      "longitude": 121.23,
-      "role_label": "首次登陆点"
-    },
-    {
-      "station_id": "YQ",
-      "name": "乐清清江",
-      "city": "温州乐清",
-      "latitude": 28.12,
-      "longitude": 121.0,
-      "role_label": "二次登陆点"
-    },
-    {
-      "station_id": "YW",
-      "name": "义乌",
-      "city": "金华义乌",
-      "latitude": 29.08,
-      "longitude": 119.65,
-      "role_label": "登陆后路径（5时中心）"
-    }
-  ],
-  "station_stats": [
-    {
-      "station_id": "YQ",
-      "name": "乐清清江",
-      "city": "温州乐清",
-      "role": "二次登陆点",
-      "lat": 28.12,
-      "lon": 121.0,
-      "precip_24h_mm": 152.8,
-      "max_wind_ms": 17.86,
-      "max_gust_ms": 36.0,
-      "max_gust_level": 12,
-      "min_pressure_hpa": 963.4,
-      "max_rain_1h_mm": 13.2,
-      "peak_landfall_gust_ms": 36.0,
-      "sample_count": 24
-    },
-    {
-      "station_id": "YH",
-      "name": "玉环坎门",
-      "city": "台州玉环",
-      "role": "首次登陆点",
-      "lat": 28.14,
-      "lon": 121.23,
-      "precip_24h_mm": 143.3,
-      "max_wind_ms": 22.93,
-      "max_gust_ms": 41.0,
-      "max_gust_level": 13,
-      "min_pressure_hpa": 961.6,
-      "max_rain_1h_mm": 16.6,
-      "peak_landfall_gust_ms": 41.0,
-      "sample_count": 24
-    },
-    {
-      "station_id": "RA",
-      "name": "瑞安沿海",
-      "city": "温州瑞安",
-      "role": "南部风圈",
-      "lat": 27.78,
-      "lon": 120.63,
-      "precip_24h_mm": 124.2,
-      "max_wind_ms": 13.33,
-      "max_gust_ms": 26.0,
-      "max_gust_level": 10,
-      "min_pressure_hpa": 972.5,
-      "max_rain_1h_mm": 16.5,
-      "peak_landfall_gust_ms": 24.7,
-      "sample_count": 24
-    },
-    {
-      "station_id": "WZ",
-      "name": "温州城区",
-      "city": "温州",
-      "role": "核心影响区",
-      "lat": 28.01,
-      "lon": 120.67,
-      "precip_24h_mm": 122.3,
-      "max_wind_ms": 11.83,
-      "max_gust_ms": 25.7,
-      "max_gust_level": 10,
-      "min_pressure_hpa": 969.8,
-      "max_rain_1h_mm": 11.6,
-      "peak_landfall_gust_ms": 25.7,
-      "sample_count": 24
-    },
-    {
-      "station_id": "WL",
-      "name": "温岭沿海",
-      "city": "台州温岭",
-      "role": "北部风圈",
-      "lat": 28.45,
-      "lon": 121.42,
-      "precip_24h_mm": 102.3,
-      "max_wind_ms": 17.24,
-      "max_gust_ms": 34.1,
-      "max_gust_level": 12,
-      "min_pressure_hpa": 965.8,
-      "max_rain_1h_mm": 10.6,
-      "peak_landfall_gust_ms": 34.1,
-      "sample_count": 24
-    },
-    {
-      "station_id": "YW",
-      "name": "义乌",
-      "city": "金华义乌",
-      "role": "登陆后路径（5时中心）",
-      "lat": 29.08,
-      "lon": 119.65,
-      "precip_24h_mm": 68.1,
-      "max_wind_ms": 9.2,
-      "max_gust_ms": 17.7,
-      "max_gust_level": 8,
-      "min_pressure_hpa": 977.0,
-      "max_rain_1h_mm": 12.4,
-      "peak_landfall_gust_ms": 15.2,
-      "sample_count": 24
-    }
-  ],
-  "series": {
-    "RA": {
-      "name": "瑞安沿海",
-      "times": [
-        "11:00",
-        "12:00",
-        "13:00",
-        "14:00",
-        "15:00",
-        "16:00",
-        "17:00",
-        "18:00",
-        "19:00",
-        "20:00",
-        "21:00",
-        "22:00",
-        "23:00",
-        "00:00",
-        "01:00",
-        "02:00",
-        "03:00",
-        "04:00",
-        "05:00",
-        "06:00",
-        "07:00",
-        "08:00",
-        "09:00",
-        "10:00"
-      ],
-      "full_times": [
-        "2026-07-11 11:00:00",
-        "2026-07-11 12:00:00",
-        "2026-07-11 13:00:00",
-        "2026-07-11 14:00:00",
-        "2026-07-11 15:00:00",
-        "2026-07-11 16:00:00",
-        "2026-07-11 17:00:00",
-        "2026-07-11 18:00:00",
-        "2026-07-11 19:00:00",
-        "2026-07-11 20:00:00",
-        "2026-07-11 21:00:00",
-        "2026-07-11 22:00:00",
-        "2026-07-11 23:00:00",
-        "2026-07-12 00:00:00",
-        "2026-07-12 01:00:00",
-        "2026-07-12 02:00:00",
-        "2026-07-12 03:00:00",
-        "2026-07-12 04:00:00",
-        "2026-07-12 05:00:00",
-        "2026-07-12 06:00:00",
-        "2026-07-12 07:00:00",
-        "2026-07-12 08:00:00",
-        "2026-07-12 09:00:00",
-        "2026-07-12 10:00:00"
-      ],
-      "temperature": [
-        28.5,
-        30.0,
-        27.5,
-        26.0,
-        25.9,
-        25.8,
-        25.9,
-        25.5,
-        25.5,
-        25.7,
-        25.8,
-        25.9,
-        26.4,
-        25.6,
-        25.5,
-        25.7,
-        25.9,
-        26.2,
-        26.5,
-        26.5,
-        26.6,
-        26.7,
-        27.1,
-        27.1
-      ],
-      "humidity": [
-        82.0,
-        70.0,
-        83.0,
-        90.0,
-        91.0,
-        91.0,
-        90.0,
-        90.0,
-        90.0,
-        90.0,
-        89.0,
-        89.0,
-        86.0,
-        89.0,
-        91.0,
-        91.0,
-        92.0,
-        92.0,
-        92.0,
-        93.0,
-        92.0,
-        93.0,
-        93.0,
-        93.0
-      ],
-      "precip": [
-        0.9,
-        0.3,
-        2.3,
-        16.5,
-        3.4,
-        3.4,
-        3.8,
-        5.0,
-        12.4,
-        7.4,
-        14.5,
-        3.5,
-        1.6,
-        3.2,
-        8.7,
-        7.0,
-        3.1,
-        3.9,
-        3.6,
-        7.7,
-        5.6,
-        3.5,
-        1.7,
-        1.2
-      ],
-      "pressure": [
-        993.7,
-        991.7,
-        989.7,
-        988.8,
-        986.8,
-        983.9,
-        981.8,
-        978.5,
-        975.7,
-        975.2,
-        973.0,
-        972.5,
-        972.7,
-        973.8,
-        977.1,
-        979.9,
-        982.5,
-        984.8,
-        986.8,
-        989.1,
-        991.0,
-        992.3,
-        993.6,
-        995.1
-      ],
-      "wind": [
-        7.56,
-        8.64,
-        9.98,
-        8.8,
-        8.93,
-        9.74,
-        9.74,
-        11.41,
-        11.78,
-        12.1,
-        13.33,
-        11.71,
-        10.73,
-        11.23,
-        9.59,
-        9.16,
-        9.6,
-        8.48,
-        8.88,
-        8.97,
-        9.88,
-        8.3,
-        8.72,
-        8.2
-      ],
-      "gust": [
-        15.2,
-        19.2,
-        21.3,
-        21.7,
-        19.7,
-        21.0,
-        21.6,
-        21.1,
-        23.9,
-        22.7,
-        26.0,
-        24.7,
-        21.5,
-        21.2,
-        20.8,
-        19.2,
-        18.5,
-        17.9,
-        16.3,
-        17.0,
-        18.7,
-        18.3,
-        16.9,
-        16.2
-      ],
-      "wind_dir": [
-        3.0,
-        348.0,
-        5.0,
-        360.0,
-        347.0,
-        341.0,
-        341.0,
-        327.0,
-        328.0,
-        317.0,
-        309.0,
-        301.0,
-        266.0,
-        248.0,
-        206.0,
-        196.0,
-        192.0,
-        192.0,
-        193.0,
-        187.0,
-        192.0,
-        193.0,
-        190.0,
-        189.0
-      ]
-    },
-    "WL": {
-      "name": "温岭沿海",
-      "times": [
-        "11:00",
-        "12:00",
-        "13:00",
-        "14:00",
-        "15:00",
-        "16:00",
-        "17:00",
-        "18:00",
-        "19:00",
-        "20:00",
-        "21:00",
-        "22:00",
-        "23:00",
-        "00:00",
-        "01:00",
-        "02:00",
-        "03:00",
-        "04:00",
-        "05:00",
-        "06:00",
-        "07:00",
-        "08:00",
-        "09:00",
-        "10:00"
-      ],
-      "full_times": [
-        "2026-07-11 11:00:00",
-        "2026-07-11 12:00:00",
-        "2026-07-11 13:00:00",
-        "2026-07-11 14:00:00",
-        "2026-07-11 15:00:00",
-        "2026-07-11 16:00:00",
-        "2026-07-11 17:00:00",
-        "2026-07-11 18:00:00",
-        "2026-07-11 19:00:00",
-        "2026-07-11 20:00:00",
-        "2026-07-11 21:00:00",
-        "2026-07-11 22:00:00",
-        "2026-07-11 23:00:00",
-        "2026-07-12 00:00:00",
-        "2026-07-12 01:00:00",
-        "2026-07-12 02:00:00",
-        "2026-07-12 03:00:00",
-        "2026-07-12 04:00:00",
-        "2026-07-12 05:00:00",
-        "2026-07-12 06:00:00",
-        "2026-07-12 07:00:00",
-        "2026-07-12 08:00:00",
-        "2026-07-12 09:00:00",
-        "2026-07-12 10:00:00"
-      ],
-      "temperature": [
-        30.3,
-        28.2,
-        25.4,
-        25.6,
-        25.6,
-        25.6,
-        25.9,
-        26.1,
-        26.2,
-        26.2,
-        26.1,
-        25.5,
-        25.3,
-        25.7,
-        25.7,
-        25.9,
-        26.0,
-        25.8,
-        25.7,
-        25.6,
-        25.9,
-        26.3,
-        27.1,
-        27.0
-      ],
-      "humidity": [
-        74.0,
-        79.0,
-        93.0,
-        94.0,
-        94.0,
-        94.0,
-        94.0,
-        94.0,
-        94.0,
-        95.0,
-        94.0,
-        95.0,
-        95.0,
-        96.0,
-        93.0,
-        95.0,
-        95.0,
-        95.0,
-        95.0,
-        96.0,
-        96.0,
-        96.0,
-        93.0,
-        95.0
-      ],
-      "precip": [
-        0.4,
-        1.4,
-        8.6,
-        4.2,
-        4.0,
-        4.9,
-        7.9,
-        10.6,
-        5.3,
-        6.9,
-        2.8,
-        4.4,
-        3.5,
-        1.9,
-        7.7,
-        4.2,
-        4.4,
-        4.7,
-        5.2,
-        2.4,
-        2.2,
-        2.0,
-        1.2,
-        1.5
-      ],
-      "pressure": [
-        995.0,
-        993.3,
-        991.6,
-        990.3,
-        987.4,
-        984.8,
-        982.3,
-        979.1,
-        977.6,
-        975.5,
-        973.9,
-        968.5,
-        965.8,
-        968.9,
-        974.1,
-        979.5,
-        982.0,
-        984.9,
-        987.0,
-        989.2,
-        991.1,
-        992.2,
-        993.7,
-        995.3
-      ],
-      "wind": [
-        11.48,
-        11.83,
-        12.54,
-        13.12,
-        13.24,
-        13.98,
-        14.42,
-        15.98,
-        15.39,
-        16.94,
-        15.07,
-        17.24,
-        13.1,
-        12.9,
-        15.31,
-        14.21,
-        13.1,
-        11.35,
-        9.95,
-        10.15,
-        10.05,
-        10.31,
-        10.25,
-        10.4
-      ],
-      "gust": [
-        24.1,
-        26.0,
-        27.4,
-        26.8,
-        27.9,
-        28.2,
-        29.6,
-        31.8,
-        32.1,
-        30.5,
-        33.1,
-        33.2,
-        34.1,
-        25.9,
-        30.0,
-        31.3,
-        28.1,
-        25.9,
-        22.9,
-        20.8,
-        21.0,
-        20.8,
-        20.8,
-        20.8
-      ],
-      "wind_dir": [
-        33.0,
-        32.0,
-        32.0,
-        33.0,
-        25.0,
-        27.0,
-        29.0,
-        40.0,
-        49.0,
-        45.0,
-        59.0,
-        59.0,
-        99.0,
-        139.0,
-        171.0,
-        175.0,
-        180.0,
-        179.0,
-        179.0,
-        181.0,
-        180.0,
-        182.0,
-        181.0,
-        180.0
-      ]
-    },
-    "WZ": {
-      "name": "温州城区",
-      "times": [
-        "11:00",
-        "12:00",
-        "13:00",
-        "14:00",
-        "15:00",
-        "16:00",
-        "17:00",
-        "18:00",
-        "19:00",
-        "20:00",
-        "21:00",
-        "22:00",
-        "23:00",
-        "00:00",
-        "01:00",
-        "02:00",
-        "03:00",
-        "04:00",
-        "05:00",
-        "06:00",
-        "07:00",
-        "08:00",
-        "09:00",
-        "10:00"
-      ],
-      "full_times": [
-        "2026-07-11 11:00:00",
-        "2026-07-11 12:00:00",
-        "2026-07-11 13:00:00",
-        "2026-07-11 14:00:00",
-        "2026-07-11 15:00:00",
-        "2026-07-11 16:00:00",
-        "2026-07-11 17:00:00",
-        "2026-07-11 18:00:00",
-        "2026-07-11 19:00:00",
-        "2026-07-11 20:00:00",
-        "2026-07-11 21:00:00",
-        "2026-07-11 22:00:00",
-        "2026-07-11 23:00:00",
-        "2026-07-12 00:00:00",
-        "2026-07-12 01:00:00",
-        "2026-07-12 02:00:00",
-        "2026-07-12 03:00:00",
-        "2026-07-12 04:00:00",
-        "2026-07-12 05:00:00",
-        "2026-07-12 06:00:00",
-        "2026-07-12 07:00:00",
-        "2026-07-12 08:00:00",
-        "2026-07-12 09:00:00",
-        "2026-07-12 10:00:00"
-      ],
-      "temperature": [
-        28.5,
-        29.1,
-        27.4,
-        25.6,
-        26.4,
-        26.1,
-        25.6,
-        25.4,
-        25.4,
-        25.4,
-        25.3,
-        25.5,
-        25.4,
-        25.4,
-        25.5,
-        25.3,
-        25.2,
-        25.3,
-        25.6,
-        25.8,
-        25.9,
-        26.1,
-        26.4,
-        26.6
-      ],
-      "humidity": [
-        79.0,
-        76.0,
-        84.0,
-        91.0,
-        88.0,
-        89.0,
-        91.0,
-        90.0,
-        90.0,
-        92.0,
-        92.0,
-        91.0,
-        91.0,
-        91.0,
-        90.0,
-        93.0,
-        93.0,
-        94.0,
-        94.0,
-        94.0,
-        95.0,
-        95.0,
-        95.0,
-        95.0
-      ],
-      "precip": [
-        0.4,
-        0.5,
-        3.3,
-        8.0,
-        2.1,
-        2.2,
-        3.5,
-        6.7,
-        11.6,
-        6.0,
-        11.1,
-        4.3,
-        4.6,
-        8.4,
-        8.2,
-        7.0,
-        4.2,
-        1.6,
-        5.7,
-        4.9,
-        5.3,
-        5.8,
-        3.1,
-        3.8
-      ],
-      "pressure": [
-        994.9,
-        993.2,
-        991.2,
-        990.0,
-        988.3,
-        985.5,
-        983.3,
-        980.4,
-        977.5,
-        976.8,
-        973.9,
-        972.8,
-        969.8,
-        969.8,
-        973.2,
-        977.6,
-        980.8,
-        983.8,
-        986.3,
-        988.7,
-        990.7,
-        991.9,
-        993.3,
-        994.7
-      ],
-      "wind": [
-        5.56,
-        6.84,
-        7.93,
-        6.8,
-        7.5,
-        8.21,
-        8.04,
-        9.32,
-        10.41,
-        10.01,
-        10.75,
-        10.66,
-        11.83,
-        10.97,
-        8.76,
-        8.81,
-        8.58,
-        7.25,
-        6.55,
-        6.45,
-        6.55,
-        5.65,
-        5.8,
-        5.67
-      ],
-      "gust": [
-        15.2,
-        15.6,
-        21.2,
-        21.5,
-        16.1,
-        20.0,
-        17.9,
-        18.8,
-        24.1,
-        21.8,
-        25.1,
-        23.2,
-        25.4,
-        25.7,
-        22.9,
-        18.2,
-        18.6,
-        17.5,
-        14.8,
-        13.2,
-        13.9,
-        13.4,
-        11.8,
-        12.5
-      ],
-      "wind_dir": [
-        3.0,
-        354.0,
-        8.0,
-        2.0,
-        351.0,
-        349.0,
-        340.0,
-        330.0,
-        329.0,
-        320.0,
-        315.0,
-        309.0,
-        287.0,
-        264.0,
-        230.0,
-        189.0,
-        185.0,
-        181.0,
-        182.0,
-        179.0,
-        180.0,
-        178.0,
-        180.0,
-        175.0
-      ]
-    },
-    "YH": {
-      "name": "玉环坎门",
-      "times": [
-        "11:00",
-        "12:00",
-        "13:00",
-        "14:00",
-        "15:00",
-        "16:00",
-        "17:00",
-        "18:00",
-        "19:00",
-        "20:00",
-        "21:00",
-        "22:00",
-        "23:00",
-        "00:00",
-        "01:00",
-        "02:00",
-        "03:00",
-        "04:00",
-        "05:00",
-        "06:00",
-        "07:00",
-        "08:00",
-        "09:00",
-        "10:00"
-      ],
-      "full_times": [
-        "2026-07-11 11:00:00",
-        "2026-07-11 12:00:00",
-        "2026-07-11 13:00:00",
-        "2026-07-11 14:00:00",
-        "2026-07-11 15:00:00",
-        "2026-07-11 16:00:00",
-        "2026-07-11 17:00:00",
-        "2026-07-11 18:00:00",
-        "2026-07-11 19:00:00",
-        "2026-07-11 20:00:00",
-        "2026-07-11 21:00:00",
-        "2026-07-11 22:00:00",
-        "2026-07-11 23:00:00",
-        "2026-07-12 00:00:00",
-        "2026-07-12 01:00:00",
-        "2026-07-12 02:00:00",
-        "2026-07-12 03:00:00",
-        "2026-07-12 04:00:00",
-        "2026-07-12 05:00:00",
-        "2026-07-12 06:00:00",
-        "2026-07-12 07:00:00",
-        "2026-07-12 08:00:00",
-        "2026-07-12 09:00:00",
-        "2026-07-12 10:00:00"
-      ],
-      "temperature": [
-        29.3,
-        27.7,
-        25.6,
-        25.7,
-        25.7,
-        25.6,
-        25.7,
-        25.8,
-        26.2,
-        26.2,
-        25.9,
-        25.3,
-        25.6,
-        26.1,
-        26.7,
-        26.9,
-        26.8,
-        26.9,
-        26.9,
-        26.9,
-        26.8,
-        27.2,
-        27.4,
-        27.3
-      ],
-      "humidity": [
-        74.0,
-        81.0,
-        93.0,
-        94.0,
-        94.0,
-        95.0,
-        95.0,
-        95.0,
-        94.0,
-        95.0,
-        95.0,
-        96.0,
-        94.0,
-        92.0,
-        91.0,
-        92.0,
-        90.0,
-        91.0,
-        90.0,
-        89.0,
-        90.0,
-        91.0,
-        93.0,
-        92.0
-      ],
-      "precip": [
-        0.3,
-        1.0,
-        10.8,
-        9.3,
-        2.9,
-        5.3,
-        8.1,
-        16.6,
-        5.1,
-        12.5,
-        6.3,
-        4.5,
-        6.0,
-        6.4,
-        11.7,
-        7.3,
-        6.6,
-        7.2,
-        6.2,
-        2.1,
-        2.4,
-        1.7,
-        1.1,
-        1.9
-      ],
-      "pressure": [
-        993.5,
-        991.6,
-        989.5,
-        988.4,
-        985.7,
-        982.7,
-        979.4,
-        975.9,
-        973.7,
-        971.7,
-        969.3,
-        963.9,
-        961.6,
-        967.0,
-        974.3,
-        979.4,
-        982.4,
-        985.1,
-        987.2,
-        989.6,
-        991.4,
-        992.6,
-        994.1,
-        995.6
-      ],
-      "wind": [
-        11.64,
-        13.07,
-        13.66,
-        13.04,
-        14.25,
-        14.27,
-        15.54,
-        15.95,
-        16.51,
-        16.88,
-        16.17,
-        14.44,
-        3.82,
-        15.57,
-        22.93,
-        19.16,
-        17.6,
-        16.0,
-        15.73,
-        14.72,
-        15.48,
-        15.32,
-        13.91,
-        13.89
-      ],
-      "gust": [
-        24.8,
-        26.6,
-        26.6,
-        27.3,
-        27.1,
-        27.6,
-        29.2,
-        31.5,
-        31.4,
-        31.3,
-        31.2,
-        30.5,
-        25.4,
-        27.5,
-        41.0,
-        40.9,
-        34.8,
-        32.4,
-        29.8,
-        28.1,
-        28.2,
-        28.2,
-        27.3,
-        25.1
-      ],
-      "wind_dir": [
-        24.0,
-        22.0,
-        22.0,
-        18.0,
-        14.0,
-        11.0,
-        10.0,
-        8.0,
-        20.0,
-        21.0,
-        30.0,
-        14.0,
-        76.0,
-        199.0,
-        188.0,
-        185.0,
-        190.0,
-        186.0,
-        187.0,
-        186.0,
-        186.0,
-        188.0,
-        185.0,
-        184.0
-      ]
-    },
-    "YQ": {
-      "name": "乐清清江",
-      "times": [
-        "11:00",
-        "12:00",
-        "13:00",
-        "14:00",
-        "15:00",
-        "16:00",
-        "17:00",
-        "18:00",
-        "19:00",
-        "20:00",
-        "21:00",
-        "22:00",
-        "23:00",
-        "00:00",
-        "01:00",
-        "02:00",
-        "03:00",
-        "04:00",
-        "05:00",
-        "06:00",
-        "07:00",
-        "08:00",
-        "09:00",
-        "10:00"
-      ],
-      "full_times": [
-        "2026-07-11 11:00:00",
-        "2026-07-11 12:00:00",
-        "2026-07-11 13:00:00",
-        "2026-07-11 14:00:00",
-        "2026-07-11 15:00:00",
-        "2026-07-11 16:00:00",
-        "2026-07-11 17:00:00",
-        "2026-07-11 18:00:00",
-        "2026-07-11 19:00:00",
-        "2026-07-11 20:00:00",
-        "2026-07-11 21:00:00",
-        "2026-07-11 22:00:00",
-        "2026-07-11 23:00:00",
-        "2026-07-12 00:00:00",
-        "2026-07-12 01:00:00",
-        "2026-07-12 02:00:00",
-        "2026-07-12 03:00:00",
-        "2026-07-12 04:00:00",
-        "2026-07-12 05:00:00",
-        "2026-07-12 06:00:00",
-        "2026-07-12 07:00:00",
-        "2026-07-12 08:00:00",
-        "2026-07-12 09:00:00",
-        "2026-07-12 10:00:00"
-      ],
-      "temperature": [
-        27.5,
-        27.6,
-        26.5,
-        25.9,
-        26.3,
-        26.0,
-        25.9,
-        26.0,
-        26.1,
-        26.3,
-        26.3,
-        25.9,
-        25.8,
-        25.7,
-        26.5,
-        27.2,
-        27.2,
-        27.3,
-        27.3,
-        27.3,
-        27.0,
-        27.5,
-        27.5,
-        27.8
-      ],
-      "humidity": [
-        88.0,
-        89.0,
-        89.0,
-        91.0,
-        91.0,
-        91.0,
-        91.0,
-        91.0,
-        92.0,
-        91.0,
-        94.0,
-        92.0,
-        92.0,
-        94.0,
-        91.0,
-        90.0,
-        91.0,
-        90.0,
-        90.0,
-        86.0,
-        90.0,
-        91.0,
-        91.0,
-        90.0
-      ],
-      "precip": [
-        0.7,
-        2.0,
-        6.7,
-        10.8,
-        3.9,
-        3.8,
-        7.6,
-        11.1,
-        8.5,
-        7.6,
-        6.2,
-        4.0,
-        13.2,
-        9.1,
-        10.2,
-        10.0,
-        6.3,
-        6.1,
-        7.0,
-        7.2,
-        4.6,
-        2.5,
-        1.8,
-        1.9
-      ],
-      "pressure": [
-        994.0,
-        992.4,
-        990.3,
-        989.2,
-        986.7,
-        983.7,
-        981.1,
-        977.6,
-        975.8,
-        973.5,
-        971.6,
-        967.9,
-        963.4,
-        965.2,
-        972.2,
-        977.8,
-        981.1,
-        984.1,
-        986.5,
-        989.0,
-        990.9,
-        992.1,
-        993.5,
-        994.9
-      ],
-      "wind": [
-        9.11,
-        10.55,
-        12.97,
-        12.47,
-        14.15,
-        13.4,
-        13.86,
-        15.27,
-        14.07,
-        15.55,
-        14.42,
-        14.61,
-        10.12,
-        8.47,
-        17.86,
-        17.38,
-        16.9,
-        15.29,
-        14.52,
-        14.92,
-        13.57,
-        12.86,
-        13.17,
-        13.23
-      ],
-      "gust": [
-        19.5,
-        24.1,
-        26.2,
-        27.3,
-        25.9,
-        27.5,
-        27.9,
-        28.6,
-        30.0,
-        30.0,
-        30.8,
-        28.5,
-        28.3,
-        18.3,
-        31.2,
-        36.0,
-        32.1,
-        31.2,
-        28.3,
-        28.0,
-        27.8,
-        25.6,
-        25.6,
-        25.0
-      ],
-      "wind_dir": [
-        357.0,
-        19.0,
-        20.0,
-        17.0,
-        10.0,
-        1.0,
-        2.0,
-        357.0,
-        3.0,
-        1.0,
-        12.0,
-        353.0,
-        356.0,
-        214.0,
-        194.0,
-        190.0,
-        192.0,
-        190.0,
-        193.0,
-        193.0,
-        191.0,
-        191.0,
-        194.0,
-        192.0
-      ]
-    },
-    "YW": {
-      "name": "义乌",
-      "times": [
-        "11:00",
-        "12:00",
-        "13:00",
-        "14:00",
-        "15:00",
-        "16:00",
-        "17:00",
-        "18:00",
-        "19:00",
-        "20:00",
-        "21:00",
-        "22:00",
-        "23:00",
-        "00:00",
-        "01:00",
-        "02:00",
-        "03:00",
-        "04:00",
-        "05:00",
-        "06:00",
-        "07:00",
-        "08:00",
-        "09:00",
-        "10:00"
-      ],
-      "full_times": [
-        "2026-07-11 11:00:00",
-        "2026-07-11 12:00:00",
-        "2026-07-11 13:00:00",
-        "2026-07-11 14:00:00",
-        "2026-07-11 15:00:00",
-        "2026-07-11 16:00:00",
-        "2026-07-11 17:00:00",
-        "2026-07-11 18:00:00",
-        "2026-07-11 19:00:00",
-        "2026-07-11 20:00:00",
-        "2026-07-11 21:00:00",
-        "2026-07-11 22:00:00",
-        "2026-07-11 23:00:00",
-        "2026-07-12 00:00:00",
-        "2026-07-12 01:00:00",
-        "2026-07-12 02:00:00",
-        "2026-07-12 03:00:00",
-        "2026-07-12 04:00:00",
-        "2026-07-12 05:00:00",
-        "2026-07-12 06:00:00",
-        "2026-07-12 07:00:00",
-        "2026-07-12 08:00:00",
-        "2026-07-12 09:00:00",
-        "2026-07-12 10:00:00"
-      ],
-      "temperature": [
-        30.8,
-        31.8,
-        31.1,
-        30.6,
-        30.4,
-        29.5,
-        28.3,
-        28.1,
-        26.0,
-        25.7,
-        25.6,
-        25.3,
-        25.2,
-        25.3,
-        25.0,
-        25.6,
-        25.2,
-        24.9,
-        24.6,
-        24.9,
-        25.3,
-        25.4,
-        25.4,
-        26.2
-      ],
-      "humidity": [
-        66.0,
-        63.0,
-        62.0,
-        67.0,
-        67.0,
-        67.0,
-        73.0,
-        75.0,
-        87.0,
-        90.0,
-        89.0,
-        92.0,
-        93.0,
-        92.0,
-        94.0,
-        93.0,
-        94.0,
-        96.0,
-        96.0,
-        95.0,
-        92.0,
-        93.0,
-        94.0,
-        93.0
-      ],
-      "precip": [
-        0.0,
-        0.3,
-        0.2,
-        1.6,
-        0.1,
-        0.3,
-        0.4,
-        0.0,
-        1.8,
-        1.6,
-        0.5,
-        1.6,
-        4.7,
-        0.6,
-        1.2,
-        2.4,
-        1.7,
-        4.8,
-        12.4,
-        11.7,
-        7.6,
-        7.6,
-        3.4,
-        1.6
-      ],
-      "pressure": [
-        999.9,
-        998.7,
-        997.3,
-        996.3,
-        995.6,
-        994.4,
-        993.5,
-        992.3,
-        991.2,
-        990.2,
-        989.0,
-        987.2,
-        984.8,
-        983.3,
-        980.7,
-        979.3,
-        977.4,
-        977.0,
-        978.0,
-        980.4,
-        983.4,
-        985.8,
-        987.9,
-        989.5
-      ],
-      "wind": [
-        4.6,
-        4.88,
-        6.05,
-        5.43,
-        5.17,
-        5.52,
-        6.09,
-        5.5,
-        6.2,
-        6.36,
-        6.13,
-        7.23,
-        6.91,
-        5.98,
-        6.47,
-        6.19,
-        6.65,
-        6.81,
-        7.54,
-        9.2,
-        6.91,
-        4.8,
-        4.46,
-        4.21
-      ],
-      "gust": [
-        12.5,
-        13.8,
-        15.2,
-        14.7,
-        12.6,
-        12.7,
-        11.9,
-        12.3,
-        13.1,
-        13.6,
-        13.0,
-        15.2,
-        14.5,
-        13.6,
-        13.1,
-        14.1,
-        13.0,
-        13.1,
-        14.6,
-        17.6,
-        17.7,
-        13.0,
-        9.1,
-        8.5
-      ],
-      "wind_dir": [
-        41.0,
-        38.0,
-        42.0,
-        22.0,
-        25.0,
-        25.0,
-        18.0,
-        1.0,
-        353.0,
-        349.0,
-        344.0,
-        346.0,
-        347.0,
-        336.0,
-        317.0,
-        322.0,
-        316.0,
-        291.0,
-        264.0,
-        241.0,
-        216.0,
-        182.0,
-        162.0,
-        162.0
-      ]
-    }
-  },
-  "regional": [
-    {
-      "time": "2026-07-11 11:00:00",
-      "label": "11:00",
-      "mean_precip": 0.45,
-      "max_gust": 24.8,
-      "mean_pressure": 995.2,
-      "mean_wind": 8.33
-    },
-    {
-      "time": "2026-07-11 12:00:00",
-      "label": "12:00",
-      "mean_precip": 0.92,
-      "max_gust": 26.6,
-      "mean_pressure": 993.5,
-      "mean_wind": 9.3
-    },
-    {
-      "time": "2026-07-11 13:00:00",
-      "label": "13:00",
-      "mean_precip": 5.32,
-      "max_gust": 27.4,
-      "mean_pressure": 991.6,
-      "mean_wind": 10.52
-    },
-    {
-      "time": "2026-07-11 14:00:00",
-      "label": "14:00",
-      "mean_precip": 8.4,
-      "max_gust": 27.3,
-      "mean_pressure": 990.5,
-      "mean_wind": 9.94
-    },
-    {
-      "time": "2026-07-11 15:00:00",
-      "label": "15:00",
-      "mean_precip": 2.73,
-      "max_gust": 27.9,
-      "mean_pressure": 988.4,
-      "mean_wind": 10.54
-    },
-    {
-      "time": "2026-07-11 16:00:00",
-      "label": "16:00",
-      "mean_precip": 3.32,
-      "max_gust": 28.2,
-      "mean_pressure": 985.8,
-      "mean_wind": 10.85
-    },
-    {
-      "time": "2026-07-11 17:00:00",
-      "label": "17:00",
-      "mean_precip": 5.22,
-      "max_gust": 29.6,
-      "mean_pressure": 983.6,
-      "mean_wind": 11.28
-    },
-    {
-      "time": "2026-07-11 18:00:00",
-      "label": "18:00",
-      "mean_precip": 8.33,
-      "max_gust": 31.8,
-      "mean_pressure": 980.6,
-      "mean_wind": 12.24
-    },
-    {
-      "time": "2026-07-11 19:00:00",
-      "label": "19:00",
-      "mean_precip": 7.45,
-      "max_gust": 32.1,
-      "mean_pressure": 978.6,
-      "mean_wind": 12.39
-    },
-    {
-      "time": "2026-07-11 20:00:00",
-      "label": "20:00",
-      "mean_precip": 7.0,
-      "max_gust": 31.3,
-      "mean_pressure": 977.1,
-      "mean_wind": 12.97
-    },
-    {
-      "time": "2026-07-11 21:00:00",
-      "label": "21:00",
-      "mean_precip": 6.9,
-      "max_gust": 33.1,
-      "mean_pressure": 975.1,
-      "mean_wind": 12.65
-    },
-    {
-      "time": "2026-07-11 22:00:00",
-      "label": "22:00",
-      "mean_precip": 3.72,
-      "max_gust": 33.2,
-      "mean_pressure": 972.1,
-      "mean_wind": 12.65
-    },
-    {
-      "time": "2026-07-11 23:00:00",
-      "label": "23:00",
-      "mean_precip": 5.6,
-      "max_gust": 34.1,
-      "mean_pressure": 969.7,
-      "mean_wind": 9.42
-    },
-    {
-      "time": "2026-07-12 00:00:00",
-      "label": "00:00",
-      "mean_precip": 4.93,
-      "max_gust": 27.5,
-      "mean_pressure": 971.3,
-      "mean_wind": 10.85
-    },
-    {
-      "time": "2026-07-12 01:00:00",
-      "label": "01:00",
-      "mean_precip": 7.95,
-      "max_gust": 41.0,
-      "mean_pressure": 975.3,
-      "mean_wind": 13.49
-    },
-    {
-      "time": "2026-07-12 02:00:00",
-      "label": "02:00",
-      "mean_precip": 6.32,
-      "max_gust": 40.9,
-      "mean_pressure": 978.9,
-      "mean_wind": 12.48
-    },
-    {
-      "time": "2026-07-12 03:00:00",
-      "label": "03:00",
-      "mean_precip": 4.38,
-      "max_gust": 34.8,
-      "mean_pressure": 981.0,
-      "mean_wind": 12.07
-    },
-    {
-      "time": "2026-07-12 04:00:00",
-      "label": "04:00",
-      "mean_precip": 4.72,
-      "max_gust": 32.4,
-      "mean_pressure": 983.3,
-      "mean_wind": 10.86
-    },
-    {
-      "time": "2026-07-12 05:00:00",
-      "label": "05:00",
-      "mean_precip": 6.68,
-      "max_gust": 29.8,
-      "mean_pressure": 985.3,
-      "mean_wind": 10.53
-    },
-    {
-      "time": "2026-07-12 06:00:00",
-      "label": "06:00",
-      "mean_precip": 6.0,
-      "max_gust": 28.1,
-      "mean_pressure": 987.7,
-      "mean_wind": 10.73
-    },
-    {
-      "time": "2026-07-12 07:00:00",
-      "label": "07:00",
-      "mean_precip": 4.62,
-      "max_gust": 28.2,
-      "mean_pressure": 989.8,
-      "mean_wind": 10.41
-    },
-    {
-      "time": "2026-07-12 08:00:00",
-      "label": "08:00",
-      "mean_precip": 3.85,
-      "max_gust": 28.2,
-      "mean_pressure": 991.1,
-      "mean_wind": 9.54
-    },
-    {
-      "time": "2026-07-12 09:00:00",
-      "label": "09:00",
-      "mean_precip": 2.05,
-      "max_gust": 27.3,
-      "mean_pressure": 992.7,
-      "mean_wind": 9.38
-    },
-    {
-      "time": "2026-07-12 10:00:00",
-      "label": "10:00",
-      "mean_precip": 1.98,
-      "max_gust": 25.1,
-      "mean_pressure": 994.2,
-      "mean_wind": 9.27
-    }
-  ],
-  "highlights": {
-    "top_rain": {
-      "station_id": "YQ",
-      "name": "乐清清江",
-      "city": "温州乐清",
-      "role": "二次登陆点",
-      "lat": 28.12,
-      "lon": 121.0,
-      "precip_24h_mm": 152.8,
-      "max_wind_ms": 17.86,
-      "max_gust_ms": 36.0,
-      "max_gust_level": 12,
-      "min_pressure_hpa": 963.4,
-      "max_rain_1h_mm": 13.2,
-      "peak_landfall_gust_ms": 36.0,
-      "sample_count": 24
-    },
-    "top_gust": {
-      "station_id": "YH",
-      "name": "玉环坎门",
-      "city": "台州玉环",
-      "role": "首次登陆点",
-      "lat": 28.14,
-      "lon": 121.23,
-      "precip_24h_mm": 143.3,
-      "max_wind_ms": 22.93,
-      "max_gust_ms": 41.0,
-      "max_gust_level": 13,
-      "min_pressure_hpa": 961.6,
-      "max_rain_1h_mm": 16.6,
-      "peak_landfall_gust_ms": 41.0,
-      "sample_count": 24
-    },
-    "lowest_pressure": {
-      "station_id": "YH",
-      "name": "玉环坎门",
-      "city": "台州玉环",
-      "role": "首次登陆点",
-      "lat": 28.14,
-      "lon": 121.23,
-      "precip_24h_mm": 143.3,
-      "max_wind_ms": 22.93,
-      "max_gust_ms": 41.0,
-      "max_gust_level": 13,
-      "min_pressure_hpa": 961.6,
-      "max_rain_1h_mm": 16.6,
-      "peak_landfall_gust_ms": 41.0,
-      "sample_count": 24
-    },
-    "total_stations": 6,
-    "total_records": 144
-  },
-  "insights": [
-    "近24小时（07-11 11:00–07-12 10:00 北京时）六站累计降水最高为乐清清江 152.8 mm。",
-    "最大阵风出现在玉环坎门，达 41.0 m/s（约13级），与台风登陆时段强风圈吻合。",
-    "最低气压出现在玉环坎门，为 961.6 hPa，对应台风中心过境前后的气压谷。",
-    "玉环/乐清站在 7/11 23时–7/12 01时出现风向由偏北急转为偏南，呈现典型台风中心过境风向突变。",
-    "义乌站降水峰值滞后至 7/12 05–07时，与「巴威」减弱后中心移至义乌境内的路径一致。",
-    "登陆并不等于危险解除：内陆站点风雨仍强，且远距离水汽将继续影响华东以北地区。"
-  ],
-  "data_note": "观测数据由 Open-Meteo 小时场入库 MySQL（typhoon_obs）后提取；路径信息综合中央气象台公开通报。"
-};
+window.__ANALYSIS__ = {"generated_at": "2026-08-19T18:54:27.694797+08:00", "window": {"start": "2026-08-18 18:57:33", "end": "2026-08-19 18:53:32"}, "station": {"device_id": 40381694, "name": "尤溪施工气象站", "location": "尤溪镇下白岩至黄家寮道路建设工程", "interval_note": "约5分钟一条"}, "devices": [{"device_id": 40381694, "sample_count": 288}], "latest": {"uploadtime": "2026-08-19 18:53:32", "temperature": 26.0, "humidity": 82.7, "wind_speed": 0.9, "wind_power": "1", "wind_direction": "7", "wind_direction_label": "西北", "wind_degree": null, "pressure_kpa": 100.3, "instantaneous_rainfall": 0.0, "today_rainfall": 0.2, "yesterday_rainfall": 0.2, "pm25": 5.0, "pm10": 15.0, "noise": 52.3, "light_intensity": 9.0}, "station_stats": {"device_id": 40381694, "sample_count": 288, "temperature": {"min": 23.7, "max": 32.3, "avg": 27.26, "latest": 26.0}, "humidity": {"min": 56.6, "max": 92.6, "avg": 77.39, "latest": 82.7}, "wind_speed": {"min": 0.0, "max": 9.7, "avg": 2.27, "latest": 0.9}, "wind_power": {"min": 0.0, "max": 5.0, "avg": 1.66, "latest": 1.0}, "pressure_kpa": {"min": 100.1, "max": 100.4, "avg": 100.28, "latest": 100.3}, "pm25": {"min": 5.0, "max": 15.0, "avg": 6.95, "latest": 5.0}, "pm10": {"min": 6.0, "max": 19.0, "avg": 16.16, "latest": 15.0}, "noise": {"min": 50.3, "max": 75.9, "avg": 54.07, "latest": 52.3}, "light_intensity": {"min": 0.0, "max": 85848.0, "avg": 16429.4, "latest": 9.0}, "instantaneous_rainfall": {"max": 0.0, "sum": 0.0, "latest": 0.0}, "today_rainfall_latest": 0.2, "yesterday_rainfall_latest": 0.2, "dominant_wind_direction": {"code": "7", "label": "西北", "count": 101}}, "series": {"times": ["18:57", "19:02", "19:07", "19:12", "19:17", "19:22", "19:27", "19:32", "19:37", "19:42", "19:47", "19:52", "19:57", "20:02", "20:07", "20:12", "20:17", "20:22", "20:27", "20:32", "20:37", "20:42", "20:47", "20:52", "20:57", "21:02", "21:07", "21:12", "21:17", "21:22", "21:27", "21:32", "21:37", "21:42", "21:47", "21:52", "21:57", "22:02", "22:07", "22:12", "22:17", "22:22", "22:27", "22:32", "22:37", "22:42", "22:47", "22:52", "22:57", "23:02", "23:07", "23:12", "23:17", "23:22", "23:27", "23:32", "23:37", "23:42", "23:47", "23:52", "23:57", "00:02", "00:07", "00:12", "00:17", "00:22", "00:27", "00:32", "00:37", "00:42", "00:47", "00:52", "00:57", "01:02", "01:07", "01:12", "01:17", "01:22", "01:27", "01:32", "01:37", "01:42", "01:47", "01:52", "01:57", "02:02", "02:07", "02:12", "02:17", "02:22", "02:27", "02:32", "02:37", "02:42", "02:47", "02:52", "02:57", "03:02", "03:07", "03:12", "03:17", "03:22", "03:27", "03:32", "03:37", "03:42", "03:47", "03:52", "03:57", "04:02", "04:07", "04:12", "04:17", "04:22", "04:27", "04:32", "04:37", "04:42", "04:47", "04:52", "04:57", "05:02", "05:07", "05:12", "05:17", "05:22", "05:27", "05:32", "05:37", "05:42", "05:47", "05:52", "05:57", "06:02", "06:07", "06:13", "06:18", "06:23", "06:28", "06:33", "06:38", "06:43", "06:48", "06:53", "06:58", "07:03", "07:08", "07:13", "07:18", "07:23", "07:28", "07:33", "07:38", "07:43", "07:48", "07:53", "07:58", "08:03", "08:08", "08:13", "08:18", "08:23", "08:28", "08:33", "08:38", "08:43", "08:48", "08:53", "08:58", "09:03", "09:08", "09:13", "09:18", "09:23", "09:28", "09:33", "09:38", "09:43", "09:48", "09:53", "09:58", "10:03", "10:08", "10:13", "10:18", "10:23", "10:28", "10:33", "10:38", "10:43", "10:48", "10:53", "10:58", "11:03", "11:08", "11:13", "11:18", "11:23", "11:28", "11:33", "11:38", "11:43", "11:48", "11:53", "11:58", "12:03", "12:08", "12:13", "12:18", "12:23", "12:28", "12:33", "12:38", "12:43", "12:48", "12:53", "12:58", "13:03", "13:08", "13:13", "13:18", "13:23", "13:28", "13:33", "13:38", "13:43", "13:48", "13:53", "13:58", "14:03", "14:08", "14:13", "14:18", "14:23", "14:28", "14:33", "14:38", "14:43", "14:48", "14:53", "14:58", "15:03", "15:08", "15:13", "15:18", "15:23", "15:28", "15:33", "15:38", "15:43", "15:48", "15:53", "15:58", "16:03", "16:08", "16:13", "16:18", "16:23", "16:28", "16:33", "16:38", "16:43", "16:48", "16:53", "16:58", "17:03", "17:08", "17:13", "17:18", "17:23", "17:28", "17:33", "17:38", "17:43", "17:48", "17:53", "17:58", "18:03", "18:08", "18:13", "18:18", "18:23", "18:28", "18:33", "18:38", "18:43", "18:48", "18:53"], "full_times": ["2026-08-18 18:57:33", "2026-08-18 19:02:33", "2026-08-18 19:07:34", "2026-08-18 19:12:34", "2026-08-18 19:17:34", "2026-08-18 19:22:34", "2026-08-18 19:27:34", "2026-08-18 19:32:34", "2026-08-18 19:37:35", "2026-08-18 19:42:35", "2026-08-18 19:47:35", "2026-08-18 19:52:35", "2026-08-18 19:57:36", "2026-08-18 20:02:36", "2026-08-18 20:07:36", "2026-08-18 20:12:36", "2026-08-18 20:17:37", "2026-08-18 20:22:37", "2026-08-18 20:27:37", "2026-08-18 20:32:37", "2026-08-18 20:37:37", "2026-08-18 20:42:37", "2026-08-18 20:47:37", "2026-08-18 20:52:37", "2026-08-18 20:57:38", "2026-08-18 21:02:38", "2026-08-18 21:07:38", "2026-08-18 21:12:38", "2026-08-18 21:17:38", "2026-08-18 21:22:38", "2026-08-18 21:27:39", "2026-08-18 21:32:39", "2026-08-18 21:37:39", "2026-08-18 21:42:39", "2026-08-18 21:47:40", "2026-08-18 21:52:40", "2026-08-18 21:57:40", "2026-08-18 22:02:40", "2026-08-18 22:07:40", "2026-08-18 22:12:41", "2026-08-18 22:17:41", "2026-08-18 22:22:41", "2026-08-18 22:27:41", "2026-08-18 22:32:41", "2026-08-18 22:37:41", "2026-08-18 22:42:42", "2026-08-18 22:47:42", "2026-08-18 22:52:42", "2026-08-18 22:57:42", "2026-08-18 23:02:42", "2026-08-18 23:07:43", "2026-08-18 23:12:43", "2026-08-18 23:17:43", "2026-08-18 23:22:43", "2026-08-18 23:27:43", "2026-08-18 23:32:44", "2026-08-18 23:37:44", "2026-08-18 23:42:44", "2026-08-18 23:47:44", "2026-08-18 23:52:45", "2026-08-18 23:57:45", "2026-08-19 00:02:45", "2026-08-19 00:07:45", "2026-08-19 00:12:45", "2026-08-19 00:17:46", "2026-08-19 00:22:46", "2026-08-19 00:27:46", "2026-08-19 00:32:46", "2026-08-19 00:37:46", "2026-08-19 00:42:47", "2026-08-19 00:47:47", "2026-08-19 00:52:47", "2026-08-19 00:57:47", "2026-08-19 01:02:47", "2026-08-19 01:07:47", "2026-08-19 01:12:48", "2026-08-19 01:17:48", "2026-08-19 01:22:48", "2026-08-19 01:27:48", "2026-08-19 01:32:48", "2026-08-19 01:37:48", "2026-08-19 01:42:48", "2026-08-19 01:47:49", "2026-08-19 01:52:49", "2026-08-19 01:57:49", "2026-08-19 02:02:49", "2026-08-19 02:07:49", "2026-08-19 02:12:49", "2026-08-19 02:17:50", "2026-08-19 02:22:50", "2026-08-19 02:27:50", "2026-08-19 02:32:51", "2026-08-19 02:37:51", "2026-08-19 02:42:51", "2026-08-19 02:47:52", "2026-08-19 02:52:52", "2026-08-19 02:57:52", "2026-08-19 03:02:52", "2026-08-19 03:07:52", "2026-08-19 03:12:52", "2026-08-19 03:17:52", "2026-08-19 03:22:53", "2026-08-19 03:27:53", "2026-08-19 03:32:53", "2026-08-19 03:37:53", "2026-08-19 03:42:53", "2026-08-19 03:47:53", "2026-08-19 03:52:54", "2026-08-19 03:57:54", "2026-08-19 04:02:54", "2026-08-19 04:07:54", "2026-08-19 04:12:55", "2026-08-19 04:17:55", "2026-08-19 04:22:55", "2026-08-19 04:27:55", "2026-08-19 04:32:55", "2026-08-19 04:37:55", "2026-08-19 04:42:56", "2026-08-19 04:47:56", "2026-08-19 04:52:56", "2026-08-19 04:57:57", "2026-08-19 05:02:57", "2026-08-19 05:07:57", "2026-08-19 05:12:57", "2026-08-19 05:17:58", "2026-08-19 05:22:58", "2026-08-19 05:27:58", "2026-08-19 05:32:58", "2026-08-19 05:37:59", "2026-08-19 05:42:59", "2026-08-19 05:47:59", "2026-08-19 05:52:59", "2026-08-19 05:57:59", "2026-08-19 06:02:59", "2026-08-19 06:07:59", "2026-08-19 06:13:00", "2026-08-19 06:18:00", "2026-08-19 06:23:00", "2026-08-19 06:28:00", "2026-08-19 06:33:00", "2026-08-19 06:38:00", "2026-08-19 06:43:01", "2026-08-19 06:48:01", "2026-08-19 06:53:01", "2026-08-19 06:58:01", "2026-08-19 07:03:01", "2026-08-19 07:08:01", "2026-08-19 07:13:02", "2026-08-19 07:18:02", "2026-08-19 07:23:03", "2026-08-19 07:28:03", "2026-08-19 07:33:04", "2026-08-19 07:38:04", "2026-08-19 07:43:04", "2026-08-19 07:48:04", "2026-08-19 07:53:04", "2026-08-19 07:58:04", "2026-08-19 08:03:05", "2026-08-19 08:08:05", "2026-08-19 08:13:05", "2026-08-19 08:18:05", "2026-08-19 08:23:06", "2026-08-19 08:28:06", "2026-08-19 08:33:06", "2026-08-19 08:38:06", "2026-08-19 08:43:06", "2026-08-19 08:48:07", "2026-08-19 08:53:07", "2026-08-19 08:58:07", "2026-08-19 09:03:07", "2026-08-19 09:08:07", "2026-08-19 09:13:08", "2026-08-19 09:18:08", "2026-08-19 09:23:08", "2026-08-19 09:28:08", "2026-08-19 09:33:08", "2026-08-19 09:38:09", "2026-08-19 09:43:09", "2026-08-19 09:48:09", "2026-08-19 09:53:09", "2026-08-19 09:58:10", "2026-08-19 10:03:11", "2026-08-19 10:08:11", "2026-08-19 10:13:11", "2026-08-19 10:18:11", "2026-08-19 10:23:11", "2026-08-19 10:28:11", "2026-08-19 10:33:12", "2026-08-19 10:38:12", "2026-08-19 10:43:12", "2026-08-19 10:48:12", "2026-08-19 10:53:13", "2026-08-19 10:58:13", "2026-08-19 11:03:13", "2026-08-19 11:08:13", "2026-08-19 11:13:14", "2026-08-19 11:18:14", "2026-08-19 11:23:15", "2026-08-19 11:28:15", "2026-08-19 11:33:15", "2026-08-19 11:38:15", "2026-08-19 11:43:15", "2026-08-19 11:48:15", "2026-08-19 11:53:16", "2026-08-19 11:58:16", "2026-08-19 12:03:16", "2026-08-19 12:08:16", "2026-08-19 12:13:16", "2026-08-19 12:18:17", "2026-08-19 12:23:17", "2026-08-19 12:28:18", "2026-08-19 12:33:18", "2026-08-19 12:38:18", "2026-08-19 12:43:18", "2026-08-19 12:48:18", "2026-08-19 12:53:19", "2026-08-19 12:58:19", "2026-08-19 13:03:19", "2026-08-19 13:08:20", "2026-08-19 13:13:20", "2026-08-19 13:18:20", "2026-08-19 13:23:20", "2026-08-19 13:28:20", "2026-08-19 13:33:20", "2026-08-19 13:38:20", "2026-08-19 13:43:20", "2026-08-19 13:48:21", "2026-08-19 13:53:21", "2026-08-19 13:58:21", "2026-08-19 14:03:21", "2026-08-19 14:08:21", "2026-08-19 14:13:21", "2026-08-19 14:18:22", "2026-08-19 14:23:22", "2026-08-19 14:28:22", "2026-08-19 14:33:22", "2026-08-19 14:38:22", "2026-08-19 14:43:23", "2026-08-19 14:48:23", "2026-08-19 14:53:23", "2026-08-19 14:58:23", "2026-08-19 15:03:23", "2026-08-19 15:08:23", "2026-08-19 15:13:23", "2026-08-19 15:18:23", "2026-08-19 15:23:24", "2026-08-19 15:28:24", "2026-08-19 15:33:24", "2026-08-19 15:38:25", "2026-08-19 15:43:25", "2026-08-19 15:48:26", "2026-08-19 15:53:26", "2026-08-19 15:58:26", "2026-08-19 16:03:26", "2026-08-19 16:08:26", "2026-08-19 16:13:26", "2026-08-19 16:18:26", "2026-08-19 16:23:26", "2026-08-19 16:28:27", "2026-08-19 16:33:27", "2026-08-19 16:38:27", "2026-08-19 16:43:27", "2026-08-19 16:48:28", "2026-08-19 16:53:28", "2026-08-19 16:58:28", "2026-08-19 17:03:28", "2026-08-19 17:08:28", "2026-08-19 17:13:29", "2026-08-19 17:18:29", "2026-08-19 17:23:29", "2026-08-19 17:28:29", "2026-08-19 17:33:29", "2026-08-19 17:38:30", "2026-08-19 17:43:30", "2026-08-19 17:48:30", "2026-08-19 17:53:30", "2026-08-19 17:58:30", "2026-08-19 18:03:30", "2026-08-19 18:08:30", "2026-08-19 18:13:30", "2026-08-19 18:18:31", "2026-08-19 18:23:31", "2026-08-19 18:28:31", "2026-08-19 18:33:32", "2026-08-19 18:38:32", "2026-08-19 18:43:32", "2026-08-19 18:48:32", "2026-08-19 18:53:32"], "temperature": [27.4, 27.2, 27.1, 27.3, 27.2, 27.1, 27.1, 27.0, 26.9, 26.6, 26.6, 26.5, 26.6, 26.5, 26.5, 26.5, 26.5, 26.4, 26.4, 26.4, 26.4, 26.5, 26.5, 26.2, 26.1, 26.1, 25.9, 25.9, 25.9, 26.0, 26.0, 25.8, 25.5, 25.5, 25.0, 24.9, 24.9, 25.4, 25.6, 25.8, 25.9, 25.9, 25.6, 25.7, 25.4, 25.7, 25.6, 25.3, 25.7, 25.2, 25.2, 25.5, 25.5, 25.4, 25.3, 25.4, 25.4, 25.7, 25.5, 25.6, 25.5, 25.3, 25.3, 25.3, 25.3, 24.9, 24.7, 24.5, 24.4, 24.7, 25.0, 24.9, 25.0, 25.1, 25.0, 24.9, 25.0, 25.0, 24.7, 24.5, 24.7, 24.6, 24.6, 24.2, 24.3, 24.2, 24.3, 24.5, 24.6, 24.5, 24.4, 24.5, 24.2, 24.2, 24.2, 24.1, 24.3, 24.3, 24.3, 24.4, 24.2, 24.2, 24.0, 24.0, 24.1, 24.1, 24.1, 23.7, 23.7, 24.0, 24.1, 24.4, 24.5, 24.6, 24.5, 24.5, 24.4, 24.3, 24.1, 24.0, 23.7, 23.7, 23.8, 24.0, 23.8, 23.9, 23.9, 24.4, 24.6, 24.4, 24.5, 24.5, 24.8, 24.8, 25.0, 25.2, 25.4, 25.5, 26.1, 26.1, 25.2, 25.2, 25.5, 25.6, 25.5, 26.3, 26.9, 26.6, 26.1, 26.3, 27.3, 27.9, 29.1, 29.1, 30.0, 30.8, 30.8, 31.4, 30.8, 31.4, 31.3, 30.3, 29.8, 29.8, 29.8, 29.4, 29.7, 30.9, 30.6, 30.8, 32.2, 31.9, 30.0, 29.7, 30.3, 30.3, 30.3, 30.3, 30.1, 29.0, 28.9, 28.7, 28.2, 28.8, 28.5, 29.2, 29.3, 29.8, 29.8, 29.3, 29.6, 30.1, 30.6, 29.8, 29.8, 30.6, 29.4, 30.6, 29.9, 29.2, 29.6, 30.0, 30.4, 30.9, 30.4, 30.9, 30.9, 29.8, 30.4, 30.3, 30.1, 30.3, 30.6, 30.8, 31.0, 31.3, 31.1, 31.1, 31.5, 31.0, 31.7, 31.7, 31.9, 32.3, 31.1, 30.2, 30.3, 31.0, 31.0, 31.1, 30.4, 31.4, 31.1, 31.1, 31.1, 32.1, 31.6, 30.7, 30.8, 31.8, 30.6, 30.0, 30.8, 31.0, 30.6, 30.6, 31.5, 31.9, 30.5, 29.9, 30.4, 30.4, 30.1, 29.7, 30.2, 29.8, 29.6, 29.6, 29.2, 29.1, 29.1, 28.7, 28.6, 28.2, 27.9, 27.3, 26.6, 26.3, 25.5, 24.8, 24.8, 25.0, 24.9, 25.0, 25.2, 25.2, 25.4, 25.7, 25.6, 25.6, 25.4, 25.5, 25.4, 25.4, 25.5, 25.5, 25.9, 26.0], "humidity": [75.8, 75.8, 75.9, 73.8, 74.8, 74.3, 75.1, 74.8, 75.6, 76.8, 76.2, 76.3, 76.4, 75.9, 76.1, 76.0, 76.8, 77.0, 77.3, 77.6, 77.7, 77.7, 77.7, 79.1, 79.5, 79.8, 80.1, 79.9, 79.9, 79.9, 80.1, 81.4, 82.7, 82.7, 85.4, 86.5, 86.5, 85.1, 84.3, 83.8, 84.4, 84.4, 85.2, 86.2, 86.9, 85.8, 85.9, 87.3, 86.8, 87.2, 87.2, 86.9, 86.1, 86.4, 87.0, 86.5, 86.5, 86.1, 86.0, 86.1, 86.8, 87.3, 87.7, 87.8, 87.8, 89.1, 89.8, 91.2, 91.4, 90.8, 89.1, 88.8, 89.1, 88.4, 88.6, 88.9, 88.8, 88.8, 89.5, 90.1, 89.7, 89.4, 89.7, 91.5, 91.3, 91.2, 91.0, 90.5, 89.6, 89.3, 89.8, 89.8, 90.7, 91.0, 91.4, 91.6, 91.2, 91.2, 90.4, 90.7, 90.4, 90.4, 90.9, 91.3, 90.9, 90.3, 90.7, 92.3, 92.1, 91.3, 90.5, 89.9, 88.4, 88.5, 88.2, 88.2, 88.5, 89.0, 89.9, 90.3, 91.6, 92.6, 92.3, 91.8, 91.8, 91.7, 91.7, 90.6, 89.9, 89.4, 88.4, 88.8, 88.0, 87.5, 85.8, 85.7, 85.0, 84.5, 83.2, 83.2, 86.2, 86.5, 86.3, 85.4, 85.2, 84.4, 81.9, 81.6, 83.4, 83.0, 79.8, 77.6, 74.6, 74.0, 72.0, 69.4, 69.4, 66.2, 67.0, 66.2, 66.5, 67.9, 69.1, 69.1, 68.3, 68.7, 68.5, 66.9, 68.7, 67.1, 63.8, 63.8, 67.7, 69.1, 68.0, 68.0, 68.0, 66.0, 67.1, 70.1, 71.3, 71.1, 72.9, 71.9, 71.5, 68.9, 70.3, 67.4, 67.4, 68.2, 68.5, 66.3, 63.9, 66.0, 65.8, 64.9, 66.6, 66.7, 65.1, 67.7, 66.1, 65.2, 65.5, 64.2, 61.9, 61.1, 61.1, 64.2, 64.5, 61.7, 62.6, 60.9, 60.6, 60.2, 59.4, 59.5, 57.5, 57.5, 61.6, 57.9, 58.3, 58.5, 58.3, 56.6, 59.9, 61.1, 60.7, 59.7, 59.7, 59.8, 61.8, 60.4, 60.2, 59.5, 59.5, 58.4, 60.0, 59.8, 61.0, 60.1, 62.0, 65.5, 63.4, 61.8, 63.7, 63.7, 60.2, 59.7, 63.8, 64.8, 63.8, 63.8, 64.4, 65.2, 65.8, 64.8, 63.5, 64.6, 66.1, 67.4, 67.6, 69.4, 70.5, 72.4, 73.5, 76.2, 78.3, 79.5, 83.1, 86.2, 86.7, 86.6, 86.5, 86.2, 85.2, 85.2, 84.2, 83.9, 83.4, 83.5, 84.2, 82.9, 83.0, 82.3, 82.4, 82.3, 82.2, 82.7], "wind_speed": [2.3, 3.2, 3.4, 2.7, 3.8, 3.0, 3.2, 3.1, 2.5, 3.2, 3.0, 3.1, 2.3, 2.5, 3.2, 3.1, 2.2, 3.2, 3.4, 3.2, 3.2, 2.9, 2.9, 2.4, 2.5, 1.8, 2.3, 2.1, 2.4, 2.0, 2.4, 5.6, 4.4, 4.4, 3.5, 1.6, 1.6, 0.7, 0.6, 0.1, 0.9, 0.9, 1.2, 0.9, 0.6, 0.0, 0.3, 0.6, 0.0, 1.2, 1.2, 0.0, 0.6, 0.7, 1.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.4, 0.4, 0.0, 0.0, 1.2, 0.7, 0.0, 0.0, 0.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.6, 0.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.6, 0.6, 0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, 0.5, 0.0, 0.1, 0.0, 0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.6, 0.9, 0.0, 0.5, 0.5, 0.0, 0.0, 0.1, 0.0, 1.4, 0.5, 0.6, 0.0, 0.5, 0.1, 0.0, 0.0, 1.2, 0.6, 0.3, 2.0, 1.0, 1.9, 1.9, 1.9, 1.8, 1.6, 0.0, 0.7, 0.1, 0.8, 0.6, 3.1, 2.8, 2.0, 2.0, 2.0, 0.8, 2.9, 2.3, 4.4, 3.5, 4.9, 4.2, 5.5, 3.7, 3.8, 5.9, 5.9, 4.3, 2.8, 4.7, 3.6, 4.3, 2.9, 2.7, 4.8, 5.6, 6.7, 4.0, 1.2, 2.4, 5.3, 2.6, 3.3, 3.3, 3.3, 5.8, 2.2, 5.5, 2.5, 4.5, 7.7, 4.5, 5.1, 4.0, 4.6, 4.6, 4.4, 4.9, 3.1, 5.2, 3.8, 4.3, 5.9, 7.4, 5.0, 1.4, 1.4, 5.2, 4.4, 6.5, 5.2, 4.4, 4.4, 3.4, 5.8, 7.6, 5.7, 5.8, 8.3, 5.0, 4.6, 6.6, 4.1, 4.1, 2.1, 5.8, 4.3, 3.4, 3.1, 3.1, 5.6, 3.7, 2.9, 5.1, 6.7, 4.2, 6.6, 5.1, 5.1, 6.6, 4.4, 8.6, 8.1, 8.2, 7.4, 8.2, 9.7, 8.6, 5.5, 3.9, 3.7, 4.0, 3.8, 3.8, 1.6, 0.6, 1.2, 2.6, 3.1, 1.9, 3.5, 4.0, 3.6, 2.5, 2.3, 0.9], "wind_power": [2.0, 2.0, 3.0, 2.0, 3.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 3.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 4.0, 3.0, 3.0, 3.0, 2.0, 2.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0, 0.0, 1.0, 0.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0, 1.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0, 4.0, 3.0, 3.0, 4.0, 4.0, 3.0, 2.0, 3.0, 3.0, 3.0, 2.0, 2.0, 3.0, 4.0, 4.0, 3.0, 1.0, 2.0, 3.0, 2.0, 2.0, 2.0, 2.0, 4.0, 2.0, 4.0, 2.0, 3.0, 4.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 3.0, 3.0, 3.0, 4.0, 4.0, 3.0, 1.0, 1.0, 3.0, 3.0, 4.0, 3.0, 3.0, 3.0, 3.0, 4.0, 4.0, 4.0, 4.0, 5.0, 3.0, 3.0, 4.0, 3.0, 3.0, 2.0, 4.0, 3.0, 3.0, 2.0, 2.0, 4.0, 3.0, 2.0, 3.0, 4.0, 3.0, 4.0, 3.0, 3.0, 4.0, 3.0, 5.0, 5.0, 5.0, 4.0, 5.0, 5.0, 5.0, 4.0, 3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 2.0, 2.0, 1.0], "wind_direction": ["6", "7", "6", "6", "6", "7", "7", "7", "7", "6", "6", "7", "7", "7", "6", "6", "6", "6", "5", "6", "6", "7", "7", "7", "6", "6", "6", "7", "7", "7", "7", "7", "7", "7", "6", "5", "5", "5", "6", "1", "3", "3", "3", "3", "2", "2", "1", "3", "2", "3", "3", "4", "3", "3", "5", "3", "3", "4", "2", "2", "3", "2", "7", "6", "6", "5", "5", "6", "6", "7", "0", "2", "6", "7", "3", "0", "7", "7", "6", "6", "5", "0", "2", "2", "4", "3", "2", "2", "3", "4", "4", "2", "1", "1", "0", "0", "1", "1", "3", "4", "6", "6", "4", "5", "3", "1", "3", "3", "3", "5", "4", "6", "7", "7", "7", "1", "0", "0", "0", "0", "0", "0", "1", "4", "3", "3", "3", "4", "5", "5", "4", "0", "1", "3", "0", "0", "2", "7", "7", "7", "1", "1", "1", "1", "0", "0", "0", "3", "2", "3", "2", "3", "3", "3", "3", "7", "7", "0", "7", "3", "7", "7", "0", "0", "7", "7", "7", "3", "2", "2", "1", "0", "7", "7", "3", "3", "3", "7", "1", "7", "6", "6", "6", "0", "6", "7", "7", "7", "7", "7", "6", "7", "7", "6", "7", "6", "7", "6", "6", "6", "7", "7", "5", "7", "7", "6", "6", "7", "6", "7", "7", "7", "6", "7", "7", "7", "7", "7", "3", "6", "6", "6", "7", "0", "5", "7", "6", "7", "7", "6", "6", "7", "0", "7", "7", "7", "7", "6", "6", "7", "7", "7", "0", "0", "6", "6", "0", "7", "7", "7", "7", "7", "7", "6", "7", "7", "7", "7", "7", "7", "0", "7", "7", "7", "7", "7", "7", "7", "7", "7", "7", "6", "6", "6", "6", "6", "6", "6", "6", "6", "7", "6", "6", "7", "6", "7", "0", "7"], "wind_direction_label": ["西", "西北", "西", "西", "西", "西北", "西北", "西北", "西北", "西", "西", "西北", "西北", "西北", "西", "西", "西", "西", "西南", "西", "西", "西北", "西北", "西北", "西", "西", "西", "西北", "西北", "西北", "西北", "西北", "西北", "西北", "西", "西南", "西南", "西南", "西", "东北", "东南", "东南", "东南", "东南", "东", "东", "东北", "东南", "东", "东南", "东南", "南", "东南", "东南", "西南", "东南", "东南", "南", "东", "东", "东南", "东", "西北", "西", "西", "西南", "西南", "西", "西", "西北", "北", "东", "西", "西北", "东南", "北", "西北", "西北", "西", "西", "西南", "北", "东", "东", "南", "东南", "东", "东", "东南", "南", "南", "东", "东北", "东北", "北", "北", "东北", "东北", "东南", "南", "西", "西", "南", "西南", "东南", "东北", "东南", "东南", "东南", "西南", "南", "西", "西北", "西北", "西北", "东北", "北", "北", "北", "北", "北", "北", "东北", "南", "东南", "东南", "东南", "南", "西南", "西南", "南", "北", "东北", "东南", "北", "北", "东", "西北", "西北", "西北", "东北", "东北", "东北", "东北", "北", "北", "北", "东南", "东", "东南", "东", "东南", "东南", "东南", "东南", "西北", "西北", "北", "西北", "东南", "西北", "西北", "北", "北", "西北", "西北", "西北", "东南", "东", "东", "东北", "北", "西北", "西北", "东南", "东南", "东南", "西北", "东北", "西北", "西", "西", "西", "北", "西", "西北", "西北", "西北", "西北", "西北", "西", "西北", "西北", "西", "西北", "西", "西北", "西", "西", "西", "西北", "西北", "西南", "西北", "西北", "西", "西", "西北", "西", "西北", "西北", "西北", "西", "西北", "西北", "西北", "西北", "西北", "东南", "西", "西", "西", "西北", "北", "西南", "西北", "西", "西北", "西北", "西", "西", "西北", "北", "西北", "西北", "西北", "西北", "西", "西", "西北", "西北", "西北", "北", "北", "西", "西", "北", "西北", "西北", "西北", "西北", "西北", "西北", "西", "西北", "西北", "西北", "西北", "西北", "西北", "北", "西北", "西北", "西北", "西北", "西北", "西北", "西北", "西北", "西北", "西北", "西", "西", "西", "西", "西", "西", "西", "西", "西", "西北", "西", "西", "西北", "西", "西北", "北", "西北"], "pressure_kpa": [100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.4, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.4, 100.4, 100.3, 100.3, 100.3, 100.3, 100.3, 100.4, 100.3, 100.4, 100.4, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.1, 100.1, 100.1, 100.1, 100.1, 100.1, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.1, 100.1, 100.2, 100.1, 100.1, 100.1, 100.1, 100.1, 100.1, 100.1, 100.2, 100.1, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.2, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3, 100.3], "instantaneous_rainfall": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "today_rainfall": [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2], "yesterday_rainfall": [3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 3.8, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2], "pm25": [9.0, 5.0, 9.0, 6.0, 9.0, 8.0, 6.0, 8.0, 8.0, 5.0, 6.0, 6.0, 6.0, 5.0, 5.0, 5.0, 9.0, 8.0, 7.0, 9.0, 7.0, 8.0, 8.0, 8.0, 6.0, 8.0, 9.0, 8.0, 6.0, 6.0, 6.0, 7.0, 5.0, 5.0, 5.0, 8.0, 8.0, 9.0, 6.0, 5.0, 9.0, 9.0, 7.0, 6.0, 5.0, 8.0, 8.0, 8.0, 8.0, 6.0, 6.0, 9.0, 5.0, 9.0, 5.0, 6.0, 6.0, 5.0, 9.0, 9.0, 8.0, 7.0, 5.0, 5.0, 5.0, 5.0, 5.0, 9.0, 9.0, 8.0, 7.0, 9.0, 8.0, 6.0, 6.0, 7.0, 7.0, 7.0, 6.0, 5.0, 7.0, 5.0, 9.0, 5.0, 8.0, 6.0, 7.0, 8.0, 7.0, 9.0, 8.0, 9.0, 5.0, 9.0, 7.0, 6.0, 5.0, 5.0, 6.0, 7.0, 9.0, 9.0, 9.0, 7.0, 5.0, 5.0, 9.0, 7.0, 6.0, 8.0, 7.0, 7.0, 7.0, 8.0, 5.0, 5.0, 7.0, 5.0, 9.0, 5.0, 9.0, 5.0, 9.0, 9.0, 7.0, 5.0, 5.0, 7.0, 7.0, 5.0, 6.0, 5.0, 5.0, 6.0, 7.0, 6.0, 5.0, 6.0, 6.0, 6.0, 5.0, 8.0, 6.0, 7.0, 8.0, 9.0, 7.0, 8.0, 12.0, 15.0, 5.0, 7.0, 7.0, 6.0, 5.0, 8.0, 8.0, 6.0, 8.0, 7.0, 5.0, 5.0, 8.0, 8.0, 8.0, 7.0, 6.0, 9.0, 8.0, 6.0, 9.0, 5.0, 7.0, 8.0, 8.0, 8.0, 8.0, 8.0, 9.0, 7.0, 7.0, 7.0, 8.0, 9.0, 5.0, 7.0, 8.0, 6.0, 6.0, 5.0, 5.0, 5.0, 6.0, 9.0, 6.0, 7.0, 6.0, 7.0, 6.0, 5.0, 7.0, 5.0, 5.0, 6.0, 6.0, 7.0, 7.0, 6.0, 9.0, 6.0, 9.0, 8.0, 7.0, 5.0, 8.0, 8.0, 8.0, 8.0, 5.0, 9.0, 7.0, 7.0, 6.0, 5.0, 7.0, 5.0, 9.0, 8.0, 8.0, 8.0, 7.0, 9.0, 7.0, 7.0, 7.0, 8.0, 6.0, 7.0, 7.0, 8.0, 5.0, 5.0, 6.0, 7.0, 9.0, 9.0, 7.0, 5.0, 6.0, 6.0, 6.0, 6.0, 9.0, 9.0, 7.0, 6.0, 6.0, 7.0, 6.0, 8.0, 9.0, 6.0, 6.0, 8.0, 9.0, 7.0, 9.0, 6.0, 9.0, 6.0, 6.0, 8.0, 9.0, 8.0, 8.0, 8.0, 5.0, 5.0, 7.0, 5.0, 7.0, 9.0, 6.0, 7.0, 9.0, 8.0, 5.0, 5.0], "pm10": [19.0, 15.0, 19.0, 16.0, 19.0, 18.0, 16.0, 18.0, 18.0, 15.0, 16.0, 16.0, 16.0, 15.0, 15.0, 15.0, 19.0, 18.0, 17.0, 19.0, 17.0, 18.0, 18.0, 18.0, 16.0, 18.0, 19.0, 18.0, 16.0, 16.0, 16.0, 17.0, 15.0, 15.0, 15.0, 18.0, 18.0, 19.0, 16.0, 15.0, 19.0, 19.0, 17.0, 16.0, 15.0, 18.0, 18.0, 18.0, 18.0, 16.0, 16.0, 19.0, 15.0, 19.0, 15.0, 16.0, 16.0, 15.0, 19.0, 19.0, 18.0, 17.0, 15.0, 15.0, 15.0, 15.0, 15.0, 19.0, 19.0, 18.0, 17.0, 19.0, 18.0, 16.0, 16.0, 17.0, 17.0, 17.0, 16.0, 15.0, 17.0, 15.0, 19.0, 15.0, 18.0, 16.0, 17.0, 18.0, 17.0, 19.0, 18.0, 19.0, 15.0, 19.0, 17.0, 16.0, 15.0, 15.0, 16.0, 17.0, 19.0, 19.0, 19.0, 17.0, 15.0, 15.0, 19.0, 8.0, 16.0, 18.0, 17.0, 17.0, 17.0, 18.0, 15.0, 15.0, 17.0, 15.0, 19.0, 15.0, 19.0, 15.0, 19.0, 19.0, 17.0, 6.0, 6.0, 8.0, 9.0, 7.0, 16.0, 6.0, 6.0, 16.0, 9.0, 8.0, 7.0, 7.0, 7.0, 7.0, 6.0, 9.0, 7.0, 8.0, 13.0, 10.0, 8.0, 12.0, 18.0, 19.0, 6.0, 17.0, 8.0, 8.0, 15.0, 18.0, 18.0, 16.0, 18.0, 17.0, 15.0, 15.0, 18.0, 18.0, 18.0, 17.0, 16.0, 19.0, 18.0, 16.0, 19.0, 15.0, 17.0, 18.0, 18.0, 18.0, 18.0, 18.0, 19.0, 17.0, 17.0, 17.0, 18.0, 19.0, 15.0, 17.0, 18.0, 16.0, 16.0, 15.0, 15.0, 15.0, 16.0, 19.0, 16.0, 17.0, 16.0, 17.0, 16.0, 15.0, 17.0, 15.0, 15.0, 16.0, 16.0, 17.0, 17.0, 16.0, 19.0, 16.0, 19.0, 18.0, 17.0, 15.0, 18.0, 18.0, 18.0, 18.0, 15.0, 19.0, 17.0, 17.0, 16.0, 15.0, 17.0, 15.0, 19.0, 18.0, 18.0, 18.0, 17.0, 19.0, 17.0, 17.0, 17.0, 18.0, 16.0, 17.0, 17.0, 18.0, 15.0, 15.0, 16.0, 17.0, 19.0, 19.0, 17.0, 15.0, 16.0, 16.0, 16.0, 16.0, 19.0, 19.0, 17.0, 16.0, 16.0, 17.0, 16.0, 18.0, 19.0, 16.0, 16.0, 18.0, 19.0, 17.0, 19.0, 16.0, 19.0, 9.0, 16.0, 18.0, 19.0, 18.0, 18.0, 18.0, 15.0, 15.0, 17.0, 15.0, 17.0, 19.0, 16.0, 17.0, 19.0, 18.0, 15.0, 15.0], "noise": [53.4, 53.3, 53.3, 52.3, 54.2, 52.7, 53.0, 54.1, 52.5, 52.7, 52.9, 53.3, 52.4, 53.1, 52.9, 53.1, 53.0, 52.9, 52.9, 56.1, 53.1, 52.7, 52.7, 53.1, 52.7, 53.3, 52.7, 52.3, 52.4, 52.5, 55.7, 58.9, 54.3, 54.3, 52.4, 52.8, 52.8, 52.4, 52.6, 52.2, 52.2, 52.2, 52.5, 52.3, 52.5, 52.2, 52.3, 52.3, 52.4, 52.3, 52.3, 52.1, 52.0, 52.0, 51.5, 52.0, 52.0, 51.8, 52.4, 51.9, 52.2, 51.7, 51.6, 51.6, 51.6, 51.9, 51.9, 51.8, 52.0, 51.9, 51.9, 51.3, 51.6, 51.5, 51.9, 51.9, 51.6, 51.6, 51.7, 51.8, 51.0, 51.5, 51.9, 51.6, 51.3, 51.1, 51.3, 51.6, 51.2, 51.6, 52.0, 51.5, 51.4, 51.3, 51.1, 51.9, 51.9, 51.9, 51.8, 51.3, 51.6, 51.6, 51.1, 51.7, 51.1, 51.2, 51.7, 51.4, 51.0, 51.2, 51.7, 51.5, 50.9, 51.8, 51.5, 51.5, 51.4, 50.9, 51.2, 51.1, 51.2, 51.3, 52.9, 51.4, 52.0, 51.9, 51.9, 52.5, 51.9, 51.8, 51.9, 52.1, 51.8, 51.5, 52.0, 51.9, 51.9, 51.5, 53.0, 53.0, 51.9, 52.1, 51.9, 51.7, 51.5, 52.4, 52.4, 51.7, 52.3, 51.5, 52.0, 52.4, 53.1, 52.6, 52.1, 53.2, 53.2, 52.9, 52.0, 57.9, 52.1, 56.6, 52.1, 52.1, 53.0, 52.3, 51.7, 53.7, 52.4, 52.5, 52.1, 53.1, 52.0, 52.9, 52.2, 52.2, 52.2, 51.7, 51.0, 53.0, 52.4, 51.4, 61.2, 51.8, 52.4, 52.5, 51.9, 60.4, 60.4, 56.1, 53.3, 59.5, 53.0, 59.8, 51.6, 52.4, 60.9, 55.9, 59.5, 58.4, 53.5, 52.2, 57.8, 52.5, 52.1, 53.0, 53.0, 56.1, 52.3, 60.3, 52.3, 58.2, 72.7, 59.9, 57.0, 53.8, 55.0, 55.0, 55.9, 59.6, 54.2, 59.3, 54.1, 55.4, 64.5, 64.5, 52.7, 51.9, 51.9, 52.6, 59.8, 53.4, 52.2, 60.9, 60.9, 51.7, 56.3, 68.1, 61.7, 63.3, 71.2, 64.1, 53.4, 60.0, 53.0, 53.0, 55.1, 61.2, 53.0, 57.1, 51.9, 51.9, 68.2, 53.4, 52.6, 60.7, 66.5, 52.8, 55.0, 53.2, 58.0, 66.4, 57.9, 65.1, 70.5, 61.7, 75.9, 72.5, 75.6, 70.9, 63.1, 54.6, 52.2, 54.2, 52.3, 52.3, 52.2, 52.5, 50.3, 52.7, 52.8, 51.9, 52.9, 53.0, 52.9, 52.5, 52.4, 52.3], "light_intensity": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 12.0, 42.0, 42.0, 237.0, 481.0, 768.0, 1296.0, 1677.0, 2147.0, 2732.0, 2882.0, 3724.0, 4758.0, 5441.0, 5514.0, 5514.0, 6581.0, 5630.0, 6609.0, 7112.0, 8363.0, 9024.0, 9290.0, 8826.0, 10513.0, 14972.0, 15914.0, 11028.0, 9732.0, 10287.0, 10961.0, 11123.0, 11123.0, 10644.0, 11400.0, 13261.0, 14905.0, 17025.0, 18690.0, 18690.0, 23363.0, 25494.0, 26409.0, 28282.0, 30130.0, 33348.0, 37762.0, 15012.0, 17592.0, 44197.0, 42254.0, 42254.0, 42254.0, 18223.0, 14786.0, 19312.0, 22414.0, 21691.0, 25586.0, 20401.0, 52896.0, 47872.0, 51233.0, 52511.0, 52511.0, 22027.0, 58221.0, 58907.0, 59136.0, 64928.0, 62622.0, 66935.0, 19931.0, 63604.0, 19873.0, 18434.0, 22188.0, 69820.0, 67871.0, 19147.0, 71723.0, 25485.0, 25485.0, 21990.0, 26937.0, 75957.0, 21200.0, 37210.0, 75545.0, 77079.0, 77500.0, 74914.0, 78534.0, 78534.0, 66859.0, 76158.0, 77372.0, 81410.0, 41022.0, 85848.0, 32012.0, 28548.0, 22435.0, 22011.0, 22011.0, 73749.0, 23359.0, 81291.0, 79519.0, 77265.0, 77265.0, 75716.0, 77808.0, 77049.0, 79769.0, 80886.0, 80574.0, 18385.0, 76207.0, 63812.0, 49227.0, 49227.0, 79693.0, 66197.0, 13801.0, 21523.0, 38771.0, 38771.0, 23048.0, 24604.0, 29810.0, 22402.0, 12035.0, 7914.0, 5825.0, 4928.0, 4992.0, 5267.0, 7667.0, 12456.0, 6462.0, 4587.0, 3184.0, 3595.0, 3382.0, 2348.0, 1680.0, 1186.0, 1122.0, 1195.0, 1232.0, 1232.0, 808.0, 585.0, 585.0, 738.0, 750.0, 658.0, 561.0, 405.0, 228.0, 106.0, 33.0, 9.0]}, "insights": ["近24小时共 288 条记录(设备 40381694),窗口 08-18 18:57–08-19 18:53 北京时。", "最新气温 26.0 °C,相对湿度 82.7 %,气压 100.3 kPa。", "近24小时气温 23.7–32.3 °C,风速峰值 9.7 m/s。", "主导风向码 7（西北）,出现 101 次;风向角度字段多为空,页面展示码值+八风向标签。", "今日累计降水 0.2 mm,昨日 0.2 mm;近24小时瞬时降水峰值 0.0 mm。", "颗粒物最新 PM2.5 5.0 / PM10 15.0,噪声 52.3 dB。"], "data_note": "数据来自业主扬尘/气象监测站 MySQL(tess_yangchen_ms.yangchen_record)只读提取;气压单位为 kPa;风向为设备八方位码(0–7)的最佳努力中文标签,非实测方位角。"};
 /**
- * 台风巴威观测可视化主逻辑
- * 从 analysis.json 读取 MySQL 提取结果并渲染图表 / 地图
+ * 尤溪施工气象站观测看板主逻辑
+ * 从 analysis.json 读取近24小时 MySQL 提取结果并渲染 KPI / 图表
  */
-
-/** @typedef {import('../data/analysis.json')} AnalysisData */
 
 const PALETTE = {
   primary: "#1E40AF",
@@ -2664,6 +630,10 @@ const PALETTE = {
   gust: "#DC2626",
   pressure: "#1E3A8A",
   humidity: "#64748B",
+  pm25: "#7C3AED",
+  pm10: "#DB2777",
+  noise: "#059669",
+  temp: "#EA580C",
 };
 
 /** @type {Chart[]} */
@@ -2675,42 +645,62 @@ const charts = [];
  * @returns {string}
  */
 function formatWindow(window) {
-  return `${window.start.slice(5, 16).replace(" ", " ")} → ${window.end.slice(5, 16)} CST`;
+  return `${window.start.slice(5, 16)} → ${window.end.slice(5, 16)} CST`;
 }
 
 /**
- * 渲染 KPI 卡片
+ * 空值占位
+ * @param {unknown} value
+ * @param {number} [digits]
+ * @returns {string}
+ */
+function fmt(value, digits = 1) {
+  if (value === null || value === undefined || value === "") return "—";
+  if (typeof value === "number") return value.toFixed(digits);
+  return String(value);
+}
+
+/**
+ * 稀疏化横轴标签,避免 ~288 点过密
+ * @param {string[]} labels
+ * @param {number} maxTicks
+ * @returns {(ctx:{index:number,chart:Chart}) => string|undefined}
+ */
+function sparseTicks(labels, maxTicks = 8) {
+  const step = Math.max(1, Math.ceil(labels.length / maxTicks));
+  return (ctx) => {
+    const i = ctx.index;
+    if (i % step === 0 || i === labels.length - 1) return labels[i];
+    return undefined;
+  };
+}
+
+/**
+ * 渲染最新读数 KPI
  * @param {any} data
  */
 function renderKpis(data) {
-  const h = data.highlights;
+  const L = data.latest;
+  const windText =
+    L.wind_direction_label != null
+      ? `码 ${L.wind_direction} · ${L.wind_direction_label}`
+      : L.wind_direction != null
+        ? `码 ${L.wind_direction}`
+        : "—";
+
   const items = [
+    { label: "气温", value: fmt(L.temperature), unit: "°C", sub: `湿度 ${fmt(L.humidity)} %`, cls: "" },
+    { label: "风速", value: fmt(L.wind_speed), unit: "m/s", sub: `风力 ${fmt(L.wind_power, 0)} 级`, cls: "" },
+    { label: "风向", value: windText, unit: "", sub: "八风向标签(非度数)", cls: "warn" },
+    { label: "气压", value: fmt(L.pressure_kpa), unit: "kPa", sub: "非 hPa", cls: "" },
+    { label: "今日降水", value: fmt(L.today_rainfall), unit: "mm", sub: `瞬时 ${fmt(L.instantaneous_rainfall)} mm`, cls: "" },
+    { label: "PM2.5", value: fmt(L.pm25), unit: "", sub: `PM10 ${fmt(L.pm10)}`, cls: "" },
+    { label: "噪声", value: fmt(L.noise), unit: "dB", sub: `光照 ${fmt(L.light_intensity, 0)}`, cls: "" },
     {
-      label: "24h 最大降水",
-      value: `${h.top_rain.precip_24h_mm}`,
-      unit: "mm",
-      sub: h.top_rain.name,
-      cls: "warn",
-    },
-    {
-      label: "最大阵风",
-      value: `${h.top_gust.max_gust_ms}`,
-      unit: "m/s",
-      sub: `${h.top_gust.name} · 约${h.top_gust.max_gust_level}级`,
-      cls: "alert",
-    },
-    {
-      label: "最低气压",
-      value: `${h.lowest_pressure.min_pressure_hpa}`,
-      unit: "hPa",
-      sub: h.lowest_pressure.name,
-      cls: "",
-    },
-    {
-      label: "样本规模",
-      value: `${h.total_records}`,
+      label: "样本",
+      value: `${data.station_stats.sample_count}`,
       unit: "条",
-      sub: `${h.total_stations} 站 × 近24小时`,
+      sub: data.latest.uploadtime?.slice(5, 16) || "近24小时",
       cls: "",
     },
   ];
@@ -2721,174 +711,55 @@ function renderKpis(data) {
       (item) => `
       <article class="kpi ${item.cls}">
         <p class="label">${item.label}</p>
-        <p class="value">${item.value}<small style="font-size:0.55em;margin-left:0.25rem">${item.unit}</small></p>
+        <p class="value">${item.value}${
+          item.unit
+            ? `<small style="font-size:0.55em;margin-left:0.25rem">${item.unit}</small>`
+            : ""
+        }</p>
         <p class="sub">${item.sub}</p>
       </article>`
     )
     .join("");
+
+  document.getElementById("kpiSub").textContent =
+    `最新采样 ${L.uploadtime || "—"} · 北京时`;
 }
 
 /**
- * 渲染登陆时间线
+ * 渲染极值表
  * @param {any} data
  */
-function renderTimeline(data) {
-  const t = data.typhoon;
-  const nodes = [
-    {
-      time: t.landfall_1.time,
-      title: "玉环坎门首次登陆",
-      detail: `${t.landfall_1.level} · ${t.landfall_1.wind_ms} m/s · ${t.landfall_1.pressure} hPa · ${t.landfall_1.place}`,
-    },
-    {
-      time: t.landfall_2.time,
-      title: "乐清清江二次登陆",
-      detail: `${t.landfall_2.level} · ${t.landfall_2.wind_ms} m/s · ${t.landfall_2.pressure} hPa · ${t.landfall_2.place}`,
-    },
-    ...data.track
-      .filter((p) => !p.note.includes("登陆"))
-      .map((p) => ({
-        time: p.track_time.slice(0, 16),
-        title: p.category,
-        detail: `${p.note} · 中心风速 ${p.wind_ms} m/s · ${p.pressure_hpa} hPa`,
-      })),
-  ].sort((a, b) => a.time.localeCompare(b.time));
+function renderStatsTable(data) {
+  const s = data.station_stats;
+  const rows = [
+    ["气温 °C", s.temperature],
+    ["湿度 %", s.humidity],
+    ["风速 m/s", s.wind_speed],
+    ["风力级", s.wind_power],
+    ["气压 kPa", s.pressure_kpa],
+    ["PM2.5", s.pm25],
+    ["PM10", s.pm10],
+    ["噪声 dB", s.noise],
+    ["光照", s.light_intensity],
+  ];
 
-  document.getElementById("landfallTimeline").innerHTML = nodes
-    .map(
-      (n) => `
-      <li>
-        <time datetime="${n.time}">${n.time}</time>
-        <div>
-          <strong>${n.title}</strong>
-          <span>${n.detail}</span>
-        </div>
-      </li>`
-    )
+  const tbody = document.querySelector("#statsTable tbody");
+  tbody.innerHTML = rows
+    .map(([name, st]) => {
+      if (!st) return "";
+      return `<tr>
+        <td>${name}</td>
+        <td>${fmt(st.min)}</td>
+        <td>${fmt(st.max)}</td>
+        <td>${fmt(st.avg)}</td>
+        <td>${fmt(st.latest)}</td>
+      </tr>`;
+    })
     .join("");
 }
 
 /**
- * 初始化 Leaflet 路径地图
- * @param {any} data
- */
-function renderMap(data) {
-  const map = L.map("stormMap", { scrollWheelZoom: false }).setView([28.2, 121.0], 7);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-    attribution: "&copy; OpenStreetMap &copy; CARTO",
-    maxZoom: 18,
-  }).addTo(map);
-
-  const latlngs = data.track.map((p) => [p.latitude, p.longitude]);
-  L.polyline(latlngs, { color: "#1E40AF", weight: 3, opacity: 0.85 }).addTo(map);
-
-  data.track.forEach((p, idx) => {
-    const isLandfall = String(p.note).includes("登陆");
-    L.circleMarker([p.latitude, p.longitude], {
-      radius: isLandfall ? 8 : 5,
-      color: isLandfall ? "#DC2626" : "#1E40AF",
-      fillColor: isLandfall ? "#FCA5A5" : "#93C5FD",
-      fillOpacity: 0.95,
-      weight: 2,
-    })
-      .bindPopup(
-        `<strong>${p.track_time.slice(5, 16)}</strong><br/>${p.category}<br/>${p.note}<br/>${p.wind_ms} m/s · ${p.pressure_hpa} hPa`
-      )
-      .addTo(map);
-
-    if (idx === data.track.length - 1) {
-      L.marker([p.latitude, p.longitude]).bindPopup("最新路径点").addTo(map);
-    }
-  });
-
-  data.station_stats.forEach((s) => {
-    L.circleMarker([s.lat, s.lon], {
-      radius: 6,
-      color: "#D97706",
-      fillColor: "#FDE68A",
-      fillOpacity: 0.95,
-      weight: 2,
-    })
-      .bindPopup(
-        `<strong>${s.name}</strong><br/>${s.role}<br/>降水 ${s.precip_24h_mm} mm<br/>阵风 ${s.max_gust_ms} m/s`
-      )
-      .addTo(map);
-  });
-
-  map.fitBounds(L.latLngBounds([...latlngs, ...data.station_stats.map((s) => [s.lat, s.lon])]).pad(0.2));
-}
-
-/**
- * 站点对比柱状图与表格
- * @param {any} data
- */
-function renderStationCompare(data) {
-  const stats = data.station_stats;
-  const ctx = document.getElementById("stationBar");
-  charts.push(
-    new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: stats.map((s) => s.name),
-        datasets: [
-          {
-            label: "24h 降水 (mm)",
-            data: stats.map((s) => s.precip_24h_mm),
-            backgroundColor: "rgba(14, 165, 233, 0.75)",
-            borderRadius: 4,
-            yAxisID: "y",
-          },
-          {
-            label: "最大阵风 (m/s)",
-            data: stats.map((s) => s.max_gust_ms),
-            backgroundColor: "rgba(220, 38, 38, 0.7)",
-            borderRadius: 4,
-            yAxisID: "y1",
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        interaction: { mode: "index", intersect: false },
-        plugins: {
-          legend: { position: "top" },
-          tooltip: { enabled: true },
-        },
-        scales: {
-          y: {
-            type: "linear",
-            position: "left",
-            title: { display: true, text: "mm" },
-            grid: { color: "rgba(30,64,175,0.08)" },
-          },
-          y1: {
-            type: "linear",
-            position: "right",
-            title: { display: true, text: "m/s" },
-            grid: { drawOnChartArea: false },
-          },
-        },
-      },
-    })
-  );
-
-  const tbody = document.querySelector("#stationTable tbody");
-  tbody.innerHTML = stats
-    .map(
-      (s) => `
-      <tr>
-        <td>${s.name}</td>
-        <td>${s.role}</td>
-        <td>${s.precip_24h_mm}</td>
-        <td>${s.max_gust_ms}</td>
-        <td>${s.min_pressure_hpa}</td>
-      </tr>`
-    )
-    .join("");
-}
-
-/**
- * 创建双轴折线/面积图
+ * 创建双轴折线图
  * @param {string} canvasId
  * @param {string[]} labels
  * @param {object[]} datasets
@@ -2901,13 +772,33 @@ function makeLineChart(canvasId, labels, datasets, scales) {
     options: {
       responsive: true,
       interaction: { mode: "index", intersect: false },
-      plugins: { legend: { position: "top" } },
-      scales,
-      elements: {
-        line: { tension: 0.28, borderWidth: 2 },
-        point: { radius: 0, hitRadius: 8, hoverRadius: 4 },
+      plugins: {
+        legend: { position: "top" },
+        tooltip: {
+          callbacks: {
+            title: (items) => {
+              const i = items[0]?.dataIndex;
+              return window.__SERIES_FULL_TIMES__?.[i] || labels[i] || "";
+            },
+          },
+        },
       },
-      animation: { duration: 700 },
+      scales: {
+        x: {
+          ticks: {
+            autoSkip: false,
+            maxRotation: 0,
+            callback: sparseTicks(labels),
+          },
+          grid: { color: "rgba(30,64,175,0.06)" },
+        },
+        ...scales,
+      },
+      elements: {
+        line: { tension: 0.22, borderWidth: 2 },
+        point: { radius: 0, hitRadius: 6, hoverRadius: 3 },
+      },
+      animation: { duration: 650 },
     },
   });
   charts.push(chart);
@@ -2915,74 +806,28 @@ function makeLineChart(canvasId, labels, datasets, scales) {
 }
 
 /**
- * 渲染单站小时序列
+ * 渲染全部趋势图
  * @param {any} data
- * @param {string} stationId
  */
-function renderSeries(data, stationId) {
-  const series = data.series[stationId];
-  if (!series) return;
-
-  // 清理已有序列图（保留站点对比柱状图）
-  ["pressureWind", "rainHumidity", "regionalChart"].forEach((id) => {
-    const existing = Chart.getChart(id);
-    if (existing) existing.destroy();
-  });
+function renderSeries(data) {
+  const series = data.series;
+  const labels = series.times;
+  window.__SERIES_FULL_TIMES__ = series.full_times;
 
   makeLineChart(
-    "pressureWind",
-    series.times,
+    "tempHumidity",
+    labels,
     [
       {
-        label: "气压 hPa",
-        data: series.pressure,
-        borderColor: PALETTE.pressure,
-        backgroundColor: "rgba(30, 58, 138, 0.12)",
-        fill: true,
-        yAxisID: "y",
-        borderDash: [],
-      },
-      {
-        label: "风速 m/s",
-        data: series.wind,
-        borderColor: PALETTE.secondary,
-        yAxisID: "y1",
-        borderDash: [6, 4],
-      },
-      {
-        label: "阵风 m/s",
-        data: series.gust,
-        borderColor: PALETTE.gust,
-        yAxisID: "y1",
-      },
-    ],
-    {
-      y: {
-        title: { display: true, text: "hPa" },
-        grid: { color: "rgba(30,64,175,0.08)" },
-      },
-      y1: {
-        position: "right",
-        title: { display: true, text: "m/s" },
-        grid: { drawOnChartArea: false },
-      },
-    }
-  );
-
-  makeLineChart(
-    "rainHumidity",
-    series.times,
-    [
-      {
-        label: "小时降水 mm",
-        data: series.precip,
-        borderColor: PALETTE.rain,
-        backgroundColor: "rgba(14, 165, 233, 0.25)",
+        label: "气温 °C",
+        data: series.temperature,
+        borderColor: PALETTE.temp,
+        backgroundColor: "rgba(234, 88, 12, 0.12)",
         fill: true,
         yAxisID: "y",
       },
       {
-        label: "相对湿度 %",
+        label: "湿度 %",
         data: series.humidity,
         borderColor: PALETTE.humidity,
         yAxisID: "y1",
@@ -2991,62 +836,154 @@ function renderSeries(data, stationId) {
     ],
     {
       y: {
-        title: { display: true, text: "mm" },
+        title: { display: true, text: "°C" },
         grid: { color: "rgba(30,64,175,0.08)" },
       },
       y1: {
         position: "right",
-        min: 50,
-        max: 100,
         title: { display: true, text: "%" },
         grid: { drawOnChartArea: false },
       },
     }
   );
 
-  const regional = data.regional;
   makeLineChart(
-    "regionalChart",
-    regional.map((r) => r.label),
+    "windChart",
+    labels,
     [
       {
-        label: "六站平均气压",
-        data: regional.map((r) => r.mean_pressure),
-        borderColor: PALETTE.pressure,
+        label: "风速 m/s",
+        data: series.wind_speed,
+        borderColor: PALETTE.secondary,
+        backgroundColor: "rgba(59, 130, 246, 0.12)",
+        fill: true,
         yAxisID: "y",
       },
       {
-        label: "六站最大阵风",
-        data: regional.map((r) => r.max_gust),
+        label: "风力级",
+        data: series.wind_power,
         borderColor: PALETTE.gust,
         yAxisID: "y1",
         borderDash: [5, 4],
       },
-      {
-        label: "六站平均降水",
-        data: regional.map((r) => r.mean_precip),
-        borderColor: PALETTE.rain,
-        backgroundColor: "rgba(14,165,233,0.15)",
-        fill: true,
-        yAxisID: "y1",
-      },
     ],
     {
       y: {
-        title: { display: true, text: "hPa" },
+        title: { display: true, text: "m/s" },
         grid: { color: "rgba(30,64,175,0.08)" },
       },
       y1: {
         position: "right",
-        title: { display: true, text: "m/s · mm" },
+        title: { display: true, text: "级" },
         grid: { drawOnChartArea: false },
+      },
+    }
+  );
+
+  makeLineChart(
+    "pressureChart",
+    labels,
+    [
+      {
+        label: "气压 kPa",
+        data: series.pressure_kpa,
+        borderColor: PALETTE.pressure,
+        backgroundColor: "rgba(30, 58, 138, 0.12)",
+        fill: true,
+        yAxisID: "y",
+      },
+    ],
+    {
+      y: {
+        title: { display: true, text: "kPa" },
+        grid: { color: "rgba(30,64,175,0.08)" },
+      },
+    }
+  );
+
+  makeLineChart(
+    "rainChart",
+    labels,
+    [
+      {
+        label: "瞬时降水 mm",
+        data: series.instantaneous_rainfall,
+        borderColor: PALETTE.rain,
+        backgroundColor: "rgba(14, 165, 233, 0.2)",
+        fill: true,
+        yAxisID: "y",
+      },
+      {
+        label: "今日累计 mm",
+        data: series.today_rainfall,
+        borderColor: PALETTE.primary,
+        yAxisID: "y1",
+        borderDash: [4, 4],
+      },
+    ],
+    {
+      y: {
+        title: { display: true, text: "瞬时 mm" },
+        grid: { color: "rgba(30,64,175,0.08)" },
+      },
+      y1: {
+        position: "right",
+        title: { display: true, text: "今日 mm" },
+        grid: { drawOnChartArea: false },
+      },
+    }
+  );
+
+  makeLineChart(
+    "pmChart",
+    labels,
+    [
+      {
+        label: "PM2.5",
+        data: series.pm25,
+        borderColor: PALETTE.pm25,
+        yAxisID: "y",
+      },
+      {
+        label: "PM10",
+        data: series.pm10,
+        borderColor: PALETTE.pm10,
+        yAxisID: "y",
+        borderDash: [5, 4],
+      },
+    ],
+    {
+      y: {
+        title: { display: true, text: "浓度" },
+        grid: { color: "rgba(30,64,175,0.08)" },
+      },
+    }
+  );
+
+  makeLineChart(
+    "noiseChart",
+    labels,
+    [
+      {
+        label: "噪声 dB",
+        data: series.noise,
+        borderColor: PALETTE.noise,
+        backgroundColor: "rgba(5, 150, 105, 0.12)",
+        fill: true,
+        yAxisID: "y",
+      },
+    ],
+    {
+      y: {
+        title: { display: true, text: "dB" },
+        grid: { color: "rgba(30,64,175,0.08)" },
       },
     }
   );
 }
 
 /**
- * 填充研判与页脚
+ * 填充摘要与页脚
  * @param {any} data
  */
 function renderInsights(data) {
@@ -3054,37 +991,15 @@ function renderInsights(data) {
     .map((text) => `<li>${text}</li>`)
     .join("");
 
-  const t = data.typhoon;
-  const h = data.highlights;
+  const st = data.station;
+  const L = data.latest;
   document.getElementById("briefBody").textContent =
-    `${t.number}台风「${t.name_zh}」（${t.name_en}，国际编号 ${t.intl_id}）于 ${t.landfall_1.time} 以${t.landfall_1.level}在${t.landfall_1.place}登陆，` +
-    `并于 ${t.landfall_2.time} 在${t.landfall_2.place}再次登陆。` +
-    `近24小时站点资料显示：最大阵风 ${h.top_gust.max_gust_ms} m/s（${h.top_gust.name}），` +
-    `累计降水峰值 ${h.top_rain.precip_24h_mm} mm（${h.top_rain.name}），` +
-    `最低气压 ${h.lowest_pressure.min_pressure_hpa} hPa。` +
-    `${t.impact} 展望：${t.forecast}`;
+    `${st.name}（设备 ${st.device_id}）位于${st.location}。` +
+    `采样间隔${st.interval_note}。最新：气温 ${fmt(L.temperature)} °C，` +
+    `湿度 ${fmt(L.humidity)} %，风速 ${fmt(L.wind_speed)} m/s，` +
+    `气压 ${fmt(L.pressure_kpa)} kPa，今日降水 ${fmt(L.today_rainfall)} mm。`;
 
   document.getElementById("dataNote").textContent = data.data_note;
-}
-
-/**
- * 绑定站点选择器
- * @param {any} data
- */
-function bindStationSelect(data) {
-  const select = document.getElementById("stationSelect");
-  const ids = Object.keys(data.series);
-  select.innerHTML = ids
-    .map((id) => `<option value="${id}">${data.series[id].name}</option>`)
-    .join("");
-
-  const preferred = ids.includes("YH") ? "YH" : ids[0];
-  select.value = preferred;
-  renderSeries(data, preferred);
-
-  select.addEventListener("change", () => {
-    renderSeries(data, select.value);
-  });
 }
 
 /**
@@ -3103,15 +1018,17 @@ async function main() {
   }
 
   document.getElementById("windowLabel").textContent = formatWindow(data.window);
+  document.getElementById("heroEyebrow").textContent =
+    `${data.station.location} · 设备 ${data.station.device_id}`;
+  document.getElementById("heroTitle").textContent = data.station.name;
   document.getElementById("heroLead").textContent =
-    `${data.typhoon.number}台风「${data.typhoon.name_zh}」于今日凌晨两度登陆浙江。` +
-    `本页展示 ${formatWindow(data.window)} 六站观测（MySQL 提取）与路径对照分析。`;
+    `展示 ${formatWindow(data.window)} 近24小时观测（${data.station_stats.sample_count} 条）。` +
+    `最新气温 ${fmt(data.latest.temperature)} °C，风速 ${fmt(data.latest.wind_speed)} m/s，` +
+    `气压 ${fmt(data.latest.pressure_kpa)} kPa。`;
 
   renderKpis(data);
-  renderTimeline(data);
-  renderMap(data);
-  renderStationCompare(data);
-  bindStationSelect(data);
+  renderStatsTable(data);
+  renderSeries(data);
   renderInsights(data);
 }
 
@@ -3121,6 +1038,6 @@ main().catch((err) => {
   document.getElementById("heroLead").textContent = String(err.message || err);
 });
 
-  </script>
+</script>
 </body>
 </html>

@@ -1,23 +1,28 @@
 ---
 name: mysql-weather-db
-description: 查询台风/气象监测 MySQL 数据库(数据库 tess_yangchen_ms,主表 yangchen_record)。当需要读取真实气象站观测数据(pm2.5/pm10、温湿度、风速风向、降水、气压等)进行分析、统计或与 analyze.py 结合时使用。
+description: 查询施工气象站 MySQL 数据库(数据库 tess_yangchen_ms,主表 yangchen_record)。当需要读取真实气象站观测数据(pm2.5/pm10、温湿度、风速风向、降水、气压等)进行分析、统计或与 ingest_and_analyze.py 结合时使用。
 ---
 
 # 气象监测 MySQL 数据库(yangchen_record)
 
-真实气象站监测数据存放在阿里云 MySQL(MySQL 9.2)中,可通过 **MySQL MCP server**(工具 `mysql_query`,只读)查询,也可用 `scripts/query.py` 在终端直接查询。
+真实气象站监测数据存放在阿里云 MySQL(MySQL 9.2)中,可通过 **MySQL MCP server**(工具 `mysql_query`,只读)查询,也可用 `scripts/query.py` 在终端直接查询。站点看板流水线 `scripts/ingest_and_analyze.py` 亦只读本表近24小时数据。
 
 ## 连接信息
 
 | 项 | 值 |
 | --- | --- |
-| host | `47.104.235.238`(或域名 `db.wulianxx.com`) |
+| host | `db.wulianxx.com`(或 IP `47.104.235.238`) |
 | port | `3306` |
 | 用户 | `root` |
 | 数据库 | `tess_yangchen_ms` |
 | 主表 | `yangchen_record` |
 
-密码 **不写入仓库**:全局 MCP 配置 `~/.cursor/mcp.json` 通过 `"${env:MYSQL_PASS}"` 从 **Cursor Secret `MYSQL_PASS`** 读取;终端脚本同样从环境变量 `MYSQL_PASS` 读取。请在 Cursor「Secrets」面板添加 Secret `MYSQL_PASS`(值为数据库密码),以便本地与 Cloud Agent 跨会话使用。
+密码 **不写入仓库**:
+
+- 全局 MCP 配置 `~/.cursor/mcp.json` 通过 `"${env:MYSQL_PASS}"` 从 **Cursor Secret `MYSQL_PASS`** 读取;skill 终端脚本读 `MYSQL_PASS`。
+- 仓库流水线优先读 `MYSQL_PASSWORD`(GitHub Actions Secret),并兼容 `MYSQL_PASS`。
+
+请在 Cursor「Secrets」面板添加 `MYSQL_PASS`,在 GitHub 仓库 Secrets 添加 `MYSQL_PASSWORD`。
 
 ## 使用 MySQL MCP(推荐)
 
@@ -44,11 +49,11 @@ SELECT COUNT(*) FROM yangchen_record;
 | `TSP` | varchar | 总悬浮颗粒物 |
 | `light_intensity` | varchar | 光照强度 |
 | `cumulative_rainfall` / `today_rainfall` / `yesterday_rainfall` / `instantaneous_rainfall` | varchar | 各类降水量 |
-| `barometric_pressure` | varchar | 气压 |
+| `barometric_pressure` | varchar | 气压(**kPa**,正常约 100,勿当 hPa) |
 | `32_bit_data` | varchar | 原始 32 位数据 |
-| `uploadtime` | datetime | 上传时间 |
+| `uploadtime` | datetime | 上传时间(北京时) |
 
-> 注意:除 `wind_speed`(double)、`uploadtime`(datetime)外,数值字段多为 `varchar`,做数值统计时需要 `CAST(... AS DECIMAL)`;列名 `32_bit_data` 以数字开头,引用时需加反引号。
+> 注意:除 `wind_speed`(double)、`uploadtime`(datetime)外,数值字段多为 `varchar`,做数值统计时需要 `CAST(... AS DECIMAL)`;列名 `32_bit_data` 以数字开头,引用时需加反引号。`wind_direction` 为八方位码字符串(常见 `0`–`7`),`wind_degree` 常为空。`devices` 表可能无行,站点名称勿依赖该表。
 
 ## 常用查询示例
 
@@ -81,4 +86,11 @@ export MYSQL_PASS='<数据库密码>'   # 或从 Secret 注入
 
 ## 与分析脚本结合
 
-`analyze.py` 目前读取 `data/weather_stations_bavi.csv` 示例数据。可用本 skill 的 SQL 从 `yangchen_record` 导出真实数据(字段名对齐 `analyze.py` 所需列)后传给 `--data` 进行分析。
+仓库看板流水线:
+
+```bash
+export MYSQL_PASSWORD='<密码>'   # 或 MYSQL_PASS
+/workspace/.venv/bin/python /workspace/scripts/ingest_and_analyze.py
+```
+
+脚本对 `yangchen_record` **只读 SELECT** 近24小时,写出 `site/data/analysis.json`(并同步 `docs/`)。
