@@ -1,388 +1,344 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""从 Open-Meteo 拉取浙南沿海站点近 48 小时观测，入库 MySQL 并输出近 24 小时分析 JSON。"""
+"""从阿里云 MySQL ``yangchen_record`` 只读提取近 24 小时观测并写出 ``analysis.json``。
+
+连接参数(密码不硬编码):
+
+- ``MYSQL_PASSWORD``(优先)或 ``MYSQL_PASS``(兼容 Cursor Secret)
+- ``MYSQL_HOST``(默认 ``db.wulianxx.com``)
+- ``MYSQL_PORT``(默认 ``3306``)
+- ``MYSQL_USER``(默认 ``root``)
+- ``MYSQL_DATABASE``(默认 ``tess_yangchen_ms``)
+
+仅执行 SELECT,不写库。
+"""
 
 from __future__ import annotations
 
 import json
 import math
+import os
+import statistics
+from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
 import pymysql
-import requests
 
 CST = timezone(timedelta(hours=8))
 
-DB_CFG = {
-    "host": "127.0.0.1",
-    "user": "typhoon",
-    "password": "typhoon2026",
-    "database": "typhoon_obs",
-    "charset": "utf8mb4",
+#: 站点展示名(devices 表为空,不依赖库内名称)
+STATION_META = {
+    "name": "尤溪施工气象站",
+    "location": "尤溪镇下白岩至黄家寮道路建设工程",
+    "interval_note": "约5分钟一条",
 }
 
-#: 浙南/浙中重点站点（登陆与路径影响区）
-STATIONS = [
-    {"id": "YH", "name": "玉环坎门", "city": "台州玉环", "lat": 28.14, "lon": 121.23, "role": "首次登陆点"},
-    {"id": "YQ", "name": "乐清清江", "city": "温州乐清", "lat": 28.12, "lon": 121.00, "role": "二次登陆点"},
-    {"id": "WZ", "name": "温州城区", "city": "温州", "lat": 28.01, "lon": 120.67, "role": "核心影响区"},
-    {"id": "RA", "name": "瑞安沿海", "city": "温州瑞安", "lat": 27.78, "lon": 120.63, "role": "南部风圈"},
-    {"id": "WL", "name": "温岭沿海", "city": "台州温岭", "lat": 28.45, "lon": 121.42, "role": "北部风圈"},
-    {"id": "YW", "name": "义乌", "city": "金华义乌", "lat": 29.08, "lon": 119.65, "role": "登陆后路径（5时中心）"},
-]
-
-#: 中央气象台公开路径要点（北京时）
-TYPHOON_TRACK = [
-    {"time": "2026-07-11 12:00", "lat": 25.7, "lon": 124.1, "wind_ms": 42, "pressure": 955, "category": "强台风级", "note": "距温州东南约423公里"},
-    {"time": "2026-07-11 20:00", "lat": 27.4, "lon": 122.3, "wind_ms": 40, "pressure": 955, "category": "台风级", "note": "逼近浙南沿海"},
-    {"time": "2026-07-11 23:20", "lat": 28.08, "lon": 121.27, "wind_ms": 40, "pressure": 955, "category": "台风级", "note": "玉环坎门首次登陆"},
-    {"time": "2026-07-12 00:00", "lat": 28.15, "lon": 121.05, "wind_ms": 38, "pressure": 960, "category": "台风级", "note": "乐清清江二次登陆"},
-    {"time": "2026-07-12 05:00", "lat": 29.3, "lon": 120.0, "wind_ms": 30, "pressure": 970, "category": "强热带风暴级", "note": "减弱，中心位于义乌境内"},
-    {"time": "2026-07-12 08:00", "lat": 29.8, "lon": 119.5, "wind_ms": 28, "pressure": 975, "category": "强热带风暴级", "note": "继续西北行，强度减弱"},
-]
-
-TYPHOON_META = {
-    "name_zh": "巴威",
-    "name_en": "Bavi",
-    "number": "2026年第9号",
-    "intl_id": "2609",
-    "formed": "2026-06-30",
-    "peak_cma": "超强台风级，62 m/s",
-    "min_pressure_lifetime": 910,
-    "landfall_1": {
-        "time": "2026-07-11 23:20",
-        "place": "浙江省台州市玉环市坎门街道沿海",
-        "wind_ms": 40,
-        "pressure": 955,
-        "level": "台风级（13级）",
-    },
-    "landfall_2": {
-        "time": "2026-07-12 00:00",
-        "place": "浙江省温州市乐清市清江镇沿海",
-        "wind_ms": 38,
-        "pressure": 960,
-        "level": "台风级（13级）",
-    },
-    "forecast": "继续以每小时20–25公里向西北移动，13日在安徽东部转向东北，14日由山东半岛移入黄海北部并逐渐变性为温带气旋。",
-    "impact": "体型庞大（直径超1500公里），强风雨影响浙江、福建，远距离水汽输送波及华东、华北、东北十余省区市。",
-    "sources": [
-        "中央气象台台风黄色预警（2026-07-12 06时）",
-        "新华社 / 央视新闻登陆通报",
-        "Open-Meteo 地面再分析小时观测",
-    ],
+#: 八风向最佳努力映射(设备码 0–7;非度数)
+WIND_DIR_LABELS = {
+    "0": "北",
+    "1": "东北",
+    "2": "东",
+    "3": "东南",
+    "4": "南",
+    "5": "西南",
+    "6": "西",
+    "7": "西北",
 }
 
-
-def wind_level(ms: float) -> int:
-    """将风速(m/s)近似换算为蒲福风力等级。"""
-    thresholds = [0.3, 1.6, 3.4, 5.5, 8.0, 10.8, 13.9, 17.2, 20.8, 24.5, 28.5, 32.7, 37.0, 41.5, 46.2, 51.0, 56.1]
-    for i, t in enumerate(thresholds):
-        if ms < t:
-            return i
-    return 17
+ROOT = Path(__file__).resolve().parents[1]
+SITE_DATA = ROOT / "site" / "data"
+DOCS_DATA = ROOT / "docs" / "data"
 
 
-def ensure_schema(conn: pymysql.connections.Connection) -> None:
-    """创建气象站与观测、台风路径表。"""
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS stations (
-              station_id VARCHAR(16) PRIMARY KEY,
-              name VARCHAR(64) NOT NULL,
-              city VARCHAR(64) NOT NULL,
-              latitude DOUBLE NOT NULL,
-              longitude DOUBLE NOT NULL,
-              role_label VARCHAR(64) NOT NULL
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            """
+def env_or(name: str, default: str) -> str:
+    """读取非空环境变量,否则返回默认值。
+
+    :param name: 环境变量名。
+    :param default: 默认值。
+    :returns: 有效字符串。
+    """
+    value = os.environ.get(name)
+    if value is None or not str(value).strip():
+        return default
+    return str(value).strip()
+
+
+def db_config() -> dict[str, Any]:
+    """从环境变量组装只读连接配置。
+
+    :returns: pymysql.connect 关键字参数。
+    :raises SystemExit: 缺少密码环境变量时退出。
+    """
+    password = os.environ.get("MYSQL_PASSWORD") or os.environ.get("MYSQL_PASS")
+    if not password or not str(password).strip():
+        raise SystemExit(
+            "缺少数据库密码环境变量 MYSQL_PASSWORD(或兼容名 MYSQL_PASS)。"
+            "请在本地 export,或在 GitHub Actions / Cursor Secrets 中配置。"
+            "已提交的 site/data/analysis.json 可继续用于无密码预览。"
         )
-        cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS observations (
-              id BIGINT AUTO_INCREMENT PRIMARY KEY,
-              station_id VARCHAR(16) NOT NULL,
-              obs_time DATETIME NOT NULL,
-              temperature_c DOUBLE,
-              humidity_pct DOUBLE,
-              precip_mm DOUBLE,
-              pressure_hpa DOUBLE,
-              wind_speed_ms DOUBLE,
-              wind_gust_ms DOUBLE,
-              wind_dir_deg DOUBLE,
-              UNIQUE KEY uq_station_time (station_id, obs_time),
-              KEY idx_obs_time (obs_time),
-              CONSTRAINT fk_obs_station FOREIGN KEY (station_id) REFERENCES stations(station_id)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            """
-        )
-        cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS typhoon_track (
-              id INT AUTO_INCREMENT PRIMARY KEY,
-              track_time DATETIME NOT NULL,
-              latitude DOUBLE NOT NULL,
-              longitude DOUBLE NOT NULL,
-              wind_ms DOUBLE,
-              pressure_hpa DOUBLE,
-              category VARCHAR(32),
-              note VARCHAR(128)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            """
-        )
-    conn.commit()
-
-
-def seed_stations(conn: pymysql.connections.Connection) -> None:
-    """写入站点元数据。"""
-    with conn.cursor() as cur:
-        for s in STATIONS:
-            cur.execute(
-                """
-                INSERT INTO stations (station_id, name, city, latitude, longitude, role_label)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                ON DUPLICATE KEY UPDATE
-                  name=VALUES(name), city=VALUES(city),
-                  latitude=VALUES(latitude), longitude=VALUES(longitude),
-                  role_label=VALUES(role_label)
-                """,
-                (s["id"], s["name"], s["city"], s["lat"], s["lon"], s["role"]),
-            )
-    conn.commit()
-
-
-def seed_track(conn: pymysql.connections.Connection) -> None:
-    """写入台风路径要点。"""
-    with conn.cursor() as cur:
-        cur.execute("DELETE FROM typhoon_track")
-        for p in TYPHOON_TRACK:
-            cur.execute(
-                """
-                INSERT INTO typhoon_track
-                  (track_time, latitude, longitude, wind_ms, pressure_hpa, category, note)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """,
-                (p["time"], p["lat"], p["lon"], p["wind_ms"], p["pressure"], p["category"], p["note"]),
-            )
-    conn.commit()
-
-
-def fetch_open_meteo() -> list[dict[str, Any]]:
-    """批量拉取多站点小时观测。"""
-    lats = ",".join(str(s["lat"]) for s in STATIONS)
-    lons = ",".join(str(s["lon"]) for s in STATIONS)
-    url = "https://api.open-meteo.com/v1/forecast"
-    params = {
-        "latitude": lats,
-        "longitude": lons,
-        "hourly": ",".join(
-            [
-                "temperature_2m",
-                "relative_humidity_2m",
-                "precipitation",
-                "pressure_msl",
-                "wind_speed_10m",
-                "wind_gusts_10m",
-                "wind_direction_10m",
-            ]
-        ),
-        "past_days": 1,
-        "forecast_days": 1,
-        "timezone": "Asia/Shanghai",
-        "wind_speed_unit": "ms",
+    return {
+        "host": env_or("MYSQL_HOST", "db.wulianxx.com"),
+        "port": int(env_or("MYSQL_PORT", "3306")),
+        "user": env_or("MYSQL_USER", "root"),
+        "password": str(password).strip(),
+        "database": env_or("MYSQL_DATABASE", "tess_yangchen_ms"),
+        "charset": "utf8mb4",
+        "connect_timeout": 20,
+        "read_timeout": 60,
+        "cursorclass": pymysql.cursors.DictCursor,
     }
-    resp = requests.get(url, params=params, timeout=60)
-    resp.raise_for_status()
-    payload = resp.json()
-    if isinstance(payload, dict):
-        return [payload]
-    return payload
 
 
-def ingest_observations(conn: pymysql.connections.Connection, payloads: list[dict[str, Any]]) -> int:
-    """将小时观测写入 MySQL。"""
-    count = 0
+def to_float(value: Any, ndigits: int = 2) -> float | None:
+    """将 varchar / 数值字段安全转为 float。
+
+    :param value: 原始字段值。
+    :param ndigits: 保留小数位(抑制 float 二进制噪声)。
+    :returns: 浮点数或 None。
+    """
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        if isinstance(value, float) and (math.isnan(value) or math.isinf(value)):
+            return None
+        return round(float(value), ndigits)
+    text = str(value).strip()
+    if not text:
+        return None
+    try:
+        return round(float(text), ndigits)
+    except ValueError:
+        return None
+
+
+def wind_label(code: Any) -> str | None:
+    """将风向码映射为八风向中文标签。
+
+    :param code: 原始风向码(字符串或数字)。
+    :returns: 标签或 None。
+    """
+    if code is None:
+        return None
+    key = str(code).strip()
+    if key.endswith(".0"):
+        key = key[:-2]
+    return WIND_DIR_LABELS.get(key)
+
+
+def fetch_last_24h(conn: pymysql.connections.Connection) -> list[dict[str, Any]]:
+    """SELECT 近 24 小时全部设备观测(只读)。
+
+    :param conn: 已打开的连接。
+    :returns: 按时间升序的行列表。
+    """
     with conn.cursor() as cur:
-        for idx, payload in enumerate(payloads):
-            station = STATIONS[idx]
-            hourly = payload["hourly"]
-            times = hourly["time"]
-            for i, t in enumerate(times):
-                cur.execute(
-                    """
-                    INSERT INTO observations (
-                      station_id, obs_time, temperature_c, humidity_pct, precip_mm,
-                      pressure_hpa, wind_speed_ms, wind_gust_ms, wind_dir_deg
-                    ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                    ON DUPLICATE KEY UPDATE
-                      temperature_c=VALUES(temperature_c),
-                      humidity_pct=VALUES(humidity_pct),
-                      precip_mm=VALUES(precip_mm),
-                      pressure_hpa=VALUES(pressure_hpa),
-                      wind_speed_ms=VALUES(wind_speed_ms),
-                      wind_gust_ms=VALUES(wind_gust_ms),
-                      wind_dir_deg=VALUES(wind_dir_deg)
-                    """,
-                    (
-                        station["id"],
-                        t.replace("T", " "),
-                        hourly["temperature_2m"][i],
-                        hourly["relative_humidity_2m"][i],
-                        hourly["precipitation"][i],
-                        hourly["pressure_msl"][i],
-                        hourly["wind_speed_10m"][i],
-                        hourly["wind_gusts_10m"][i],
-                        hourly["wind_direction_10m"][i],
-                    ),
-                )
-                count += 1
-    conn.commit()
-    return count
-
-
-def analyze_last_24h(conn: pymysql.connections.Connection) -> dict[str, Any]:
-    """从 MySQL 提取近 24 小时数据并做详细统计分析。"""
-    now = datetime.now(CST).replace(tzinfo=None, minute=0, second=0, microsecond=0)
-    # 以已入库的最大观测时刻为截止，避免未来预报时段污染「近24小时」统计
-    with conn.cursor() as cur:
-        cur.execute("SELECT MAX(obs_time) FROM observations WHERE obs_time <= %s", (now,))
-        row = cur.fetchone()
-        end = row[0] or now
-    start = end - timedelta(hours=23)
-
-    with conn.cursor(pymysql.cursors.DictCursor) as cur:
         cur.execute(
             """
-            SELECT o.*, s.name, s.city, s.latitude, s.longitude, s.role_label
-            FROM observations o
-            JOIN stations s ON s.station_id = o.station_id
-            WHERE o.obs_time BETWEEN %s AND %s
-            ORDER BY o.station_id, o.obs_time
-            """,
-            (start, end),
+            SELECT
+              recordId,
+              DeviceId,
+              pm10,
+              pm25,
+              TSP,
+              noise,
+              temperature,
+              humidity,
+              wind_power,
+              wind_speed,
+              wind_direction,
+              wind_degree,
+              light_intensity,
+              cumulative_rainfall,
+              instantaneous_rainfall,
+              today_rainfall,
+              yesterday_rainfall,
+              barometric_pressure,
+              uploadtime
+            FROM yangchen_record
+            WHERE uploadtime >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+            ORDER BY DeviceId ASC, uploadtime ASC
+            """
         )
-        rows = cur.fetchall()
-        cur.execute("SELECT * FROM typhoon_track ORDER BY track_time")
-        track = cur.fetchall()
-        cur.execute("SELECT * FROM stations ORDER BY station_id")
-        stations = cur.fetchall()
+        return list(cur.fetchall())
 
-    by_station: dict[str, list[dict[str, Any]]] = {}
-    for r in rows:
-        r["obs_time"] = r["obs_time"].strftime("%Y-%m-%d %H:%M:%S")
-        by_station.setdefault(r["station_id"], []).append(r)
 
-    station_stats = []
-    series = {}
-    for sid, items in by_station.items():
-        precip_sum = sum(x["precip_mm"] or 0 for x in items)
-        max_gust = max((x["wind_gust_ms"] or 0) for x in items)
-        max_wind = max((x["wind_speed_ms"] or 0) for x in items)
-        min_pres = min((x["pressure_hpa"] or 9999) for x in items)
-        max_rain_1h = max((x["precip_mm"] or 0) for x in items)
-        landfall_window = [
-            x
-            for x in items
-            if "2026-07-11 22:00:00" <= x["obs_time"] <= "2026-07-12 02:00:00"
-        ]
-        peak_landfall_gust = max((x["wind_gust_ms"] or 0) for x in landfall_window) if landfall_window else None
-        station_stats.append(
-            {
-                "station_id": sid,
-                "name": items[0]["name"],
-                "city": items[0]["city"],
-                "role": items[0]["role_label"],
-                "lat": items[0]["latitude"],
-                "lon": items[0]["longitude"],
-                "precip_24h_mm": round(precip_sum, 1),
-                "max_wind_ms": round(max_wind, 2),
-                "max_gust_ms": round(max_gust, 2),
-                "max_gust_level": wind_level(max_gust),
-                "min_pressure_hpa": round(min_pres, 1),
-                "max_rain_1h_mm": round(max_rain_1h, 1),
-                "peak_landfall_gust_ms": round(peak_landfall_gust, 2) if peak_landfall_gust is not None else None,
-                "sample_count": len(items),
-            }
-        )
-        series[sid] = {
-            "name": items[0]["name"],
-            "times": [x["obs_time"][11:16] for x in items],
-            "full_times": [x["obs_time"] for x in items],
-            "temperature": [x["temperature_c"] for x in items],
-            "humidity": [x["humidity_pct"] for x in items],
-            "precip": [x["precip_mm"] for x in items],
-            "pressure": [x["pressure_hpa"] for x in items],
-            "wind": [x["wind_speed_ms"] for x in items],
-            "gust": [x["wind_gust_ms"] for x in items],
-            "wind_dir": [x["wind_dir_deg"] for x in items],
-        }
+def numeric_stats(values: list[float | None]) -> dict[str, float | None]:
+    """计算非空数值的 min / max / avg / latest。
 
-    station_stats.sort(key=lambda x: x["precip_24h_mm"], reverse=True)
-    top_rain = station_stats[0]
-    top_gust = max(station_stats, key=lambda x: x["max_gust_ms"])
-    lowest_p = min(station_stats, key=lambda x: x["min_pressure_hpa"])
+    :param values: 时间序列数值(可含 None)。
+    :returns: 统计字典。
+    """
+    clean = [v for v in values if v is not None]
+    latest = next((v for v in reversed(values) if v is not None), None)
+    if not clean:
+        return {"min": None, "max": None, "avg": None, "latest": latest}
+    return {
+        "min": round(min(clean), 2),
+        "max": round(max(clean), 2),
+        "avg": round(statistics.fmean(clean), 2),
+        "latest": round(latest, 2) if latest is not None else None,
+    }
 
-    # 区域小时聚合（六站平均/最大）
-    hour_map: dict[str, dict[str, list[float]]] = {}
-    for r in rows:
-        t = r["obs_time"]
-        bucket = hour_map.setdefault(t, {"precip": [], "gust": [], "pressure": [], "wind": []})
-        bucket["precip"].append(r["precip_mm"] or 0)
-        bucket["gust"].append(r["wind_gust_ms"] or 0)
-        bucket["pressure"].append(r["pressure_hpa"] or 0)
-        bucket["wind"].append(r["wind_speed_ms"] or 0)
 
-    regional = []
-    for t in sorted(hour_map.keys()):
-        b = hour_map[t]
-        regional.append(
-            {
-                "time": t,
-                "label": t[11:16],
-                "mean_precip": round(sum(b["precip"]) / len(b["precip"]), 2),
-                "max_gust": round(max(b["gust"]), 2),
-                "mean_pressure": round(sum(b["pressure"]) / len(b["pressure"]), 1),
-                "mean_wind": round(sum(b["wind"]) / len(b["wind"]), 2),
-            }
-        )
+def analyze_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """由观测行生成站点统计与时间序列。
 
-    for p in track:
-        p["track_time"] = p["track_time"].strftime("%Y-%m-%d %H:%M:%S")
+    :param rows: ``yangchen_record`` 查询结果。
+    :returns: 前端可读的 analysis 对象。
+    """
+    if not rows:
+        raise SystemExit("近24小时无观测数据,请确认设备是否在线。")
 
+    # 当前仅一台设备;若未来多设备,按 DeviceId 分组后取样本最多者为主站
+    by_device: dict[int, list[dict[str, Any]]] = {}
+    for row in rows:
+        by_device.setdefault(int(row["DeviceId"]), []).append(row)
+    device_id = max(by_device.keys(), key=lambda d: len(by_device[d]))
+    items = by_device[device_id]
+
+    times_full: list[str] = []
+    times_short: list[str] = []
+    series: dict[str, list[Any]] = {
+        "temperature": [],
+        "humidity": [],
+        "wind_speed": [],
+        "wind_power": [],
+        "wind_direction": [],
+        "wind_direction_label": [],
+        "pressure_kpa": [],
+        "instantaneous_rainfall": [],
+        "today_rainfall": [],
+        "yesterday_rainfall": [],
+        "pm25": [],
+        "pm10": [],
+        "noise": [],
+        "light_intensity": [],
+    }
+
+    for row in items:
+        ts = row["uploadtime"]
+        if isinstance(ts, datetime):
+            full = ts.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            full = str(ts)
+        times_full.append(full)
+        times_short.append(full[11:16])
+
+        wind_code = None if row["wind_direction"] is None else str(row["wind_direction"]).strip()
+        series["temperature"].append(to_float(row["temperature"]))
+        series["humidity"].append(to_float(row["humidity"]))
+        series["wind_speed"].append(to_float(row["wind_speed"]))
+        series["wind_power"].append(to_float(row["wind_power"]))
+        series["wind_direction"].append(wind_code)
+        series["wind_direction_label"].append(wind_label(wind_code))
+        series["pressure_kpa"].append(to_float(row["barometric_pressure"]))
+        series["instantaneous_rainfall"].append(to_float(row["instantaneous_rainfall"]))
+        series["today_rainfall"].append(to_float(row["today_rainfall"]))
+        series["yesterday_rainfall"].append(to_float(row["yesterday_rainfall"]))
+        series["pm25"].append(to_float(row["pm25"]))
+        series["pm10"].append(to_float(row["pm10"]))
+        series["noise"].append(to_float(row["noise"]))
+        series["light_intensity"].append(to_float(row["light_intensity"]))
+
+    dir_counter = Counter(c for c in series["wind_direction"] if c is not None)
+    dominant_code, dominant_count = (dir_counter.most_common(1)[0] if dir_counter else (None, 0))
+
+    last = items[-1]
+    last_wind = None if last["wind_direction"] is None else str(last["wind_direction"]).strip()
+    latest = {
+        "uploadtime": times_full[-1],
+        "temperature": to_float(last["temperature"]),
+        "humidity": to_float(last["humidity"]),
+        "wind_speed": to_float(last["wind_speed"]),
+        "wind_power": None if last["wind_power"] is None else str(last["wind_power"]).strip(),
+        "wind_direction": last_wind,
+        "wind_direction_label": wind_label(last_wind),
+        "wind_degree": to_float(last["wind_degree"]),
+        "pressure_kpa": to_float(last["barometric_pressure"]),
+        "instantaneous_rainfall": to_float(last["instantaneous_rainfall"]),
+        "today_rainfall": to_float(last["today_rainfall"]),
+        "yesterday_rainfall": to_float(last["yesterday_rainfall"]),
+        "pm25": to_float(last["pm25"]),
+        "pm10": to_float(last["pm10"]),
+        "noise": to_float(last["noise"]),
+        "light_intensity": to_float(last["light_intensity"]),
+    }
+
+    rain_inst = [v for v in series["instantaneous_rainfall"] if v is not None]
+    station_stats = {
+        "device_id": device_id,
+        "sample_count": len(items),
+        "temperature": numeric_stats(series["temperature"]),
+        "humidity": numeric_stats(series["humidity"]),
+        "wind_speed": numeric_stats(series["wind_speed"]),
+        "wind_power": numeric_stats(series["wind_power"]),
+        "pressure_kpa": numeric_stats(series["pressure_kpa"]),
+        "pm25": numeric_stats(series["pm25"]),
+        "pm10": numeric_stats(series["pm10"]),
+        "noise": numeric_stats(series["noise"]),
+        "light_intensity": numeric_stats(series["light_intensity"]),
+        "instantaneous_rainfall": {
+            "max": round(max(rain_inst), 2) if rain_inst else None,
+            "sum": round(sum(rain_inst), 2) if rain_inst else None,
+            "latest": latest["instantaneous_rainfall"],
+        },
+        "today_rainfall_latest": latest["today_rainfall"],
+        "yesterday_rainfall_latest": latest["yesterday_rainfall"],
+        "dominant_wind_direction": {
+            "code": dominant_code,
+            "label": wind_label(dominant_code),
+            "count": dominant_count,
+        },
+    }
+
+    start = times_full[0]
+    end = times_full[-1]
     insights = [
-        f"近24小时（{start.strftime('%m-%d %H:%M')}–{end.strftime('%m-%d %H:%M')} 北京时）六站累计降水最高为{top_rain['name']} {top_rain['precip_24h_mm']} mm。",
-        f"最大阵风出现在{top_gust['name']}，达 {top_gust['max_gust_ms']} m/s（约{top_gust['max_gust_level']}级），与台风登陆时段强风圈吻合。",
-        f"最低气压出现在{lowest_p['name']}，为 {lowest_p['min_pressure_hpa']} hPa，对应台风中心过境前后的气压谷。",
-        "玉环/乐清站在 7/11 23时–7/12 01时出现风向由偏北急转为偏南，呈现典型台风中心过境风向突变。",
-        "义乌站降水峰值滞后至 7/12 05–07时，与「巴威」减弱后中心移至义乌境内的路径一致。",
-        "登陆并不等于危险解除：内陆站点风雨仍强，且远距离水汽将继续影响华东以北地区。",
+        f"近24小时共 {len(items)} 条记录(设备 {device_id}),窗口 {start[5:16]}–{end[5:16]} 北京时。",
+        f"最新气温 {latest['temperature']} °C,相对湿度 {latest['humidity']} %,气压 {latest['pressure_kpa']} kPa。",
+        f"近24小时气温 {station_stats['temperature']['min']}–{station_stats['temperature']['max']} °C,"
+        f"风速峰值 {station_stats['wind_speed']['max']} m/s。",
+        f"主导风向码 {dominant_code}"
+        + (f"（{wind_label(dominant_code)}）" if wind_label(dominant_code) else "")
+        + f",出现 {dominant_count} 次;风向角度字段多为空,页面展示码值+八风向标签。",
+        f"今日累计降水 {latest['today_rainfall']} mm,昨日 {latest['yesterday_rainfall']} mm;"
+        f"近24小时瞬时降水峰值 {station_stats['instantaneous_rainfall']['max']} mm。",
+        f"颗粒物最新 PM2.5 {latest['pm25']} / PM10 {latest['pm10']},噪声 {latest['noise']} dB。",
     ]
 
     return {
         "generated_at": datetime.now(CST).isoformat(),
-        "window": {"start": start.strftime("%Y-%m-%d %H:%M:%S"), "end": end.strftime("%Y-%m-%d %H:%M:%S")},
-        "typhoon": TYPHOON_META,
-        "track": track,
-        "stations": stations,
+        "window": {"start": start, "end": end},
+        "station": {
+            "device_id": device_id,
+            **STATION_META,
+        },
+        "devices": [
+            {"device_id": did, "sample_count": len(by_device[did])} for did in sorted(by_device)
+        ],
+        "latest": latest,
         "station_stats": station_stats,
-        "series": series,
-        "regional": regional,
-        "highlights": {
-            "top_rain": top_rain,
-            "top_gust": top_gust,
-            "lowest_pressure": lowest_p,
-            "total_stations": len(station_stats),
-            "total_records": len(rows),
+        "series": {
+            "times": times_short,
+            "full_times": times_full,
+            **series,
         },
         "insights": insights,
-        "data_note": "观测数据由 Open-Meteo 小时场入库 MySQL（typhoon_obs）后提取；路径信息综合中央气象台公开通报。",
+        "data_note": (
+            "数据来自业主扬尘/气象监测站 MySQL(tess_yangchen_ms.yangchen_record)只读提取;"
+            "气压单位为 kPa;风向为设备八方位码(0–7)的最佳努力中文标签,非实测方位角。"
+        ),
     }
 
 
 def serialize(obj: Any) -> Any:
-    """JSON 序列化辅助。"""
+    """JSON 序列化辅助。
+
+    :param obj: 待序列化对象。
+    :returns: 可 JSON 编码的值。
+    """
     if isinstance(obj, datetime):
         return obj.strftime("%Y-%m-%d %H:%M:%S")
     if isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
@@ -390,24 +346,64 @@ def serialize(obj: Any) -> Any:
     raise TypeError(type(obj))
 
 
-def main() -> None:
-    """执行入库与分析导出。"""
-    out_dir = Path("/workspace/site/data")
-    out_dir.mkdir(parents=True, exist_ok=True)
+def write_analysis(report: dict[str, Any]) -> list[Path]:
+    """写入 ``site/data`` 与 ``docs/data`` 两份 analysis.json。
 
-    conn = pymysql.connect(**DB_CFG)
+    :param report: 分析结果。
+    :returns: 写出的路径列表。
+    """
+    text = json.dumps(report, ensure_ascii=False, indent=2, default=serialize)
+    paths: list[Path] = []
+    for directory in (SITE_DATA, DOCS_DATA):
+        directory.mkdir(parents=True, exist_ok=True)
+        path = directory / "analysis.json"
+        path.write_text(text, encoding="utf-8")
+        paths.append(path)
+    return paths
+
+
+def build_standalone(report: dict[str, Any]) -> list[Path]:
+    """将 index + css + js + 内嵌 JSON 拼成 standalone.html。
+
+    :param report: 分析结果(内嵌到页面)。
+    :returns: 写出的 standalone 路径。
+    """
+    index_html = (ROOT / "site" / "index.html").read_text(encoding="utf-8")
+    css = (ROOT / "site" / "css" / "styles.css").read_text(encoding="utf-8")
+    js = (ROOT / "site" / "js" / "app.js").read_text(encoding="utf-8")
+    payload = json.dumps(report, ensure_ascii=False, default=serialize)
+
+    # 去掉外链 stylesheet / app.js,改为内联
+    html = index_html.replace(
+        '<link rel="stylesheet" href="./css/styles.css" />',
+        f"<style>\n{css}\n</style>",
+    )
+    html = html.replace(
+        '<script src="./js/app.js"></script>',
+        f"<script>\nwindow.__ANALYSIS__ = {payload};\n{js}\n</script>",
+    )
+
+    paths: list[Path] = []
+    for directory in (ROOT / "site", ROOT / "docs"):
+        path = directory / "standalone.html"
+        path.write_text(html, encoding="utf-8")
+        paths.append(path)
+    return paths
+
+
+def main() -> None:
+    """只读查询并导出分析 JSON / standalone。"""
+    cfg = db_config()
+    conn = pymysql.connect(**cfg)
     try:
-        ensure_schema(conn)
-        seed_stations(conn)
-        seed_track(conn)
-        payloads = fetch_open_meteo()
-        n = ingest_observations(conn, payloads)
-        print(f"ingested_rows={n}")
-        report = analyze_last_24h(conn)
-        path = out_dir / "analysis.json"
-        path.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=serialize), encoding="utf-8")
-        print(f"wrote={path}")
-        print(json.dumps(report["highlights"], ensure_ascii=False, indent=2))
+        rows = fetch_last_24h(conn)
+        print(f"selected_rows={len(rows)}")
+        report = analyze_rows(rows)
+        for path in write_analysis(report):
+            print(f"wrote={path}")
+        for path in build_standalone(report):
+            print(f"wrote={path}")
+        print(json.dumps(report["latest"], ensure_ascii=False, indent=2))
         print("---insights---")
         for line in report["insights"]:
             print(line)

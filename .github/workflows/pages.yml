@@ -1,29 +1,68 @@
 name: Deploy GitHub Pages
+
 on:
   push:
     branches: [main]
+  schedule:
+    # 每小时刷新一次近24小时观测(UTC)
+    - cron: "15 * * * *"
   workflow_dispatch:
+
 permissions:
   contents: read
   pages: write
   id-token: write
+
 concurrency:
   group: pages
   cancel-in-progress: true
+
 jobs:
-  deploy:
+  build-and-deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Ingest last-24h observations (read-only SELECT)
+        env:
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+          MYSQL_PORT: ${{ secrets.MYSQL_PORT }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+        run: |
+          if [ -z "$MYSQL_PASSWORD" ]; then
+            echo "MYSQL_PASSWORD secret is not set; deploying committed sample analysis.json"
+          else
+            python scripts/ingest_and_analyze.py
+          fi
+
+      - name: Sync site → docs for Pages
+        run: |
+          rm -rf docs
+          mkdir -p docs
+          cp -a site/. docs/
+
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs
+
       - id: deployment
         uses: actions/deploy-pages@v4
